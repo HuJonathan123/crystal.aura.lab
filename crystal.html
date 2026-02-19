@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五行命定水晶測算</title>
+    <style>
+        /* Mobile-first 設計 */
+        body { font-family: 'PingFang HK', sans-serif; background: #f9f4f0; color: #4a4a4a; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        h2 { text-align: center; color: #b58d67; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #b58d67; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        
+        #result { margin-top: 30px; display: none; text-align: center; animation: fadeIn 0.5s; }
+        .product-card { border: 2px solid #e0d5c8; border-radius: 15px; padding: 15px; margin-top: 15px; }
+        .product-img { width: 100%; border-radius: 10px; }
+        .buy-btn { display: inline-block; padding: 10px 20px; background: #333; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🔮 測算你的命定水晶</h2>
+    <div class="form-group">
+        <label>您的姓名</label>
+        <input type="text" id="userName" placeholder="請輸入姓名">
+    </div>
+    <div class="form-group">
+        <label>出生日期</label>
+        <input type="date" id="birthDate">
+    </div>
+    <div class="form-group">
+        <label>出生時辰</label>
+        <input type="time" id="birthTime">
+    </div>
+    <button onclick="calculateFiveElements()">開始免費測算</button>
+
+    <div id="result">
+        <h3 id="analysisText"></h3>
+        <div id="productDisplay" class="product-card">
+            </div>
+    </div>
+</div>
+
+<script>
+// 1. 商品資料庫 (對應你的 Shopline 連結)
+const shoplineProducts = {
+    "金": { name: "白水晶", info: "增強決斷力，淨化磁場", img: "https://via.placeholder.com/300?text=White+Crystal", url: "你的連結1" },
+    "木": { name: "綠幽靈", info: "招正財，助事業發展", img: "https://via.placeholder.com/300?text=Green+Ghost", url: "你的連結2" },
+    "水": { name: "黑曜石", info: "避邪擋煞，排除負能量", img: "https://via.placeholder.com/300?text=Obsidian", url: "你的連結3" },
+    "火": { name: "紅紋石", info: "招紅粉桃花，增進人緣", img: "https://via.placeholder.com/300?text=Rhodochrosite", url: "你的連結4" },
+    "土": { name: "黃水晶", info: "凝聚意外之財，增強自信", img: "https://via.placeholder.com/300?text=Citrine", url: "你的連結5" }
+};
+
+// 2. 核心計算函數
+function calculateFiveElements() {
+    const name = document.getElementById('userName').value;
+    const date = document.getElementById('birthDate').value;
+    
+    if(!date) { alert("請選擇日期"); return; }
+
+    // --- 簡化邏輯演示 ---
+    // 注意：真正的八字轉換需要引入 Lunar.js 庫。這裡先用一個模擬算法演示邏輯
+    // 實際上你會在這裡統計：金, 木, 水, 火, 土 的得分
+    const elements = ["金", "木", "水", "火", "土"];
+    const scores = { "金": Math.random()*10, "木": Math.random()*10, "水": Math.random()*10, "火": Math.random()*10, "土": Math.random()*10 };
+
+    // 找出得分最低的五行 (即最需要的)
+    let minElement = "水";
+    let minScore = 99;
+    for(let key in scores) {
+        if(scores[key] < minScore) {
+            minScore = scores[key];
+            minElement = key;
+        }
+    }
+
+    displayResult(name, minElement);
+}
+
+// 3. 渲染結果到前端
+function displayResult(name, element) {
+    const product = shoplineProducts[element];
+    const resultDiv = document.getElementById('result');
+    const analysisText = document.getElementById('analysisText');
+    const productDisplay = document.getElementById('productDisplay');
+
+    analysisText.innerText = `${name} 您好，您的五行中【${element}】較為薄弱，建議佩戴相關水晶來平衡能量。`;
+    
+    productDisplay.innerHTML = `
+        <img src="${product.img}" class="product-img">
+        <h4>推薦水晶：${product.name}</h4>
+        <p>${product.info}</p>
+        <a href="${product.url}" class="buy-btn">前往 Shopline 購買</a>
+    `;
+
+    resultDiv.style.display = 'block';
+    window.scrollTo(0, document.body.scrollHeight);
+}
+</script>
+
+</body>
+</html>
