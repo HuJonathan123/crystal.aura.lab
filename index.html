@@ -3,104 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>五行命定水晶測算</title>
+    <title>AURA_LAB | 五行命定水晶測算</title>
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
-        /* Mobile-first 設計 */
-        body { font-family: 'PingFang HK', sans-serif; background: #f9f4f0; color: #4a4a4a; margin: 0; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        h2 { text-align: center; color: #b58d67; }
+        body { font-family: 'PingFang HK', sans-serif; background: #1a1a1a; color: #eee; margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 500px; margin: 0 auto; background: #2c2c2c; padding: 25px; border-radius: 20px; border: 1px solid #444; }
+        h2 { text-align: center; color: #d4af37; letter-spacing: 2px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #b58d67; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #bbb; }
+        input { width: 100%; padding: 12px; background: #3d3d3d; border: 1px solid #555; border-radius: 8px; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #d4af37; color: #1a1a1a; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         
-        #result { margin-top: 30px; display: none; text-align: center; animation: fadeIn 0.5s; }
-        .product-card { border: 2px solid #e0d5c8; border-radius: 15px; padding: 15px; margin-top: 15px; }
-        .product-img { width: 100%; border-radius: 10px; }
-        .buy-btn { display: inline-block; padding: 10px 20px; background: #333; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px; }
+        /* 八字表格樣式 */
+        .bazi-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #3d3d3d; border-radius: 10px; overflow: hidden; }
+        .bazi-table th, .bazi-table td { border: 1px solid #555; padding: 10px; text-align: center; }
+        .bazi-table th { background: #4a4a4a; color: #d4af37; font-size: 13px; }
+        .label-cell { background: #4a4a4a; font-weight: bold; width: 60px; }
+
+        #result { margin-top: 30px; display: none; animation: fadeIn 0.8s; }
+        .analysis-box { background: #3d3d3d; padding: 15px; border-radius: 10px; margin: 15px 0; border-left: 4px solid #d4af37; }
+        .product-card { background: white; color: #333; border-radius: 15px; padding: 0 0 15px 0; overflow: hidden; margin-top: 20px; }
+        .product-img { width: 100%; height: 250px; object-fit: cover; }
+        .product-info { padding: 15px; text-align: center; }
+        .buy-btn { display: inline-block; padding: 12px 25px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px; }
         
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🔮 測算你的命定水晶</h2>
+    <h2>AURA_LAB</h2>
+    <p style="text-align: center; font-size: 12px; color: #888;">基於大數據算法的五行能量分析</p>
+    
     <div class="form-group">
         <label>您的姓名</label>
-        <input type="text" id="userName" placeholder="請輸入姓名">
+        <input type="text" id="userName" placeholder="輸入姓名開啟測算">
     </div>
     <div class="form-group">
         <label>出生日期</label>
         <input type="date" id="birthDate">
     </div>
     <div class="form-group">
-        <label>出生時辰</label>
-        <input type="time" id="birthTime">
+        <label>出生時辰 (若不確定請填 12:00)</label>
+        <input type="time" id="birthTime" value="12:00">
     </div>
-    <button onclick="calculateFiveElements()">開始免費測算</button>
+    <button onclick="calculateBazi()">分析我的五行能量</button>
 
     <div id="result">
-        <h3 id="analysisText"></h3>
-        <div id="productDisplay" class="product-card">
-            </div>
+        <table class="bazi-table" id="baziTable">
+            <tr><th></th><th>年柱</th><th>月柱</th><th>日柱</th><th>時柱</th></tr>
+            <tr id="rowTianGan"></tr>
+            <tr id="rowDiZhi"></tr>
+        </table>
+
+        <div class="analysis-box" id="analysisText"></div>
+
+        <div id="productDisplay" class="product-card"></div>
     </div>
 </div>
 
 <script>
-// 1. 商品資料庫 (對應你的 Shopline 連結)
-const shoplineProducts = {
-    "金": { name: "白水晶", info: "增強決斷力，淨化磁場", img: "https://via.placeholder.com/300?text=White+Crystal", url: "你的連結1" },
-    "木": { name: "綠幽靈", info: "招正財，助事業發展", img: "https://via.placeholder.com/300?text=Green+Ghost", url: "你的連結2" },
-    "水": { name: "黑曜石", info: "避邪擋煞，排除負能量", img: "https://via.placeholder.com/300?text=Obsidian", url: "你的連結3" },
-    "火": { name: "紅紋石", info: "招紅粉桃花，增進人緣", img: "https://via.placeholder.com/300?text=Rhodochrosite", url: "你的連結4" },
-    "土": { name: "黃水晶", info: "凝聚意外之財，增強自信", img: "https://via.placeholder.com/300?text=Citrine", url: "你的連結5" }
+// 1. 商品與圖片數據 (使用 Unsplash 真實圖片)
+const products = {
+    "金": { name: "白水晶 (Clear Quartz)", info: "您目前急需【金】元素來提升決斷力與淨化氣場。白水晶能助您思緒清晰。", img: "https://images.unsplash.com/photo-1567606401069-953503201103?auto=format&fit=crop&q=80&w=600", url: "#" },
+    "木": { name: "綠幽靈 (Green Phantom)", info: "【木】元素代表生機與財路。綠幽靈水晶能強化您的事業運勢，補足生長動能。", img: "https://images.unsplash.com/photo-1627734135359-598d9c57d197?auto=format&fit=crop&q=80&w=600", url: "#" },
+    "水": { name: "黑曜石 (Obsidian)", info: "您的五行中【水】能轉化負能量。黑曜石具備強大的避邪化煞作用，能守護平穩。", img: "https://images.unsplash.com/photo-1506362802273-df10b3988077?auto=format&fit=crop&q=80&w=600", url: "#" },
+    "火": { name: "粉晶/紅紋石 (Rose Quartz)", info: "【火】元素主感情與人際。佩戴紅潤色系水晶能增進人緣，讓您展現熱情魅力。", img: "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?auto=format&fit=crop&q=80&w=600", url: "#" },
+    "土": { name: "黃水晶 (Citrine)", info: "【土】主信譽與穩重。黃水晶能補足您的財庫能量，增強自信與行動力。", img: "https://images.unsplash.com/photo-1596280608464-2453f600f723?auto=format&fit=crop&q=80&w=600", url: "#" }
 };
 
-// 2. 核心計算函數
-function calculateFiveElements() {
-    const name = document.getElementById('userName').value;
-    const date = document.getElementById('birthDate').value;
+// 2. 五行對應表
+const elementMap = {
+    "甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水",
+    "子":"水","亥":"水","寅":"木","卯":"木","巳":"火","午":"火","申":"金","酉":"金","辰":"土","戌":"土","丑":"土","未":"土"
+};
+
+function calculateBazi() {
+    const name = document.getElementById('userName').value || "有緣人";
+    const dateStr = document.getElementById('birthDate').value;
+    const timeStr = document.getElementById('birthTime').value;
+    if(!dateStr) return alert("請輸入出生日期");
+
+    const dateArr = dateStr.split('-');
+    const timeArr = timeStr.split(':');
     
-    if(!date) { alert("請選擇日期"); return; }
+    // 使用 Lunar 庫計算
+    const lunar = Solar.fromYmdHms(parseInt(dateArr[0]), parseInt(dateArr[1]), parseInt(dateArr[2]), parseInt(timeArr[0]), parseInt(timeArr[1]), 0).getLunar();
+    const eightChars = lunar.getEightChar();
+    
+    const ganZhi = [
+        [eightChars.getYearGan(), eightChars.getYearZhi()],
+        [eightChars.getMonthGan(), eightChars.getMonthZhi()],
+        [eightChars.getDayGan(), eightChars.getDayZhi()],
+        [eightChars.getTimeGan(), eightChars.getTimeZhi()]
+    ];
 
-    // --- 簡化邏輯演示 ---
-    // 注意：真正的八字轉換需要引入 Lunar.js 庫。這裡先用一個模擬算法演示邏輯
-    // 實際上你會在這裡統計：金, 木, 水, 火, 土 的得分
-    const elements = ["金", "木", "水", "火", "土"];
-    const scores = { "金": Math.random()*10, "木": Math.random()*10, "水": Math.random()*10, "火": Math.random()*10, "土": Math.random()*10 };
+    // 渲染表格
+    document.getElementById('rowTianGan').innerHTML = `<td class="label-cell">天干</td>` + ganZhi.map(gz => `<td>${gz[0]}</td>`).join('');
+    document.getElementById('rowDiZhi').innerHTML = `<td class="label-cell">地支</td>` + ganZhi.map(gz => `<td>${gz[1]}</td>`).join('');
 
-    // 找出得分最低的五行 (即最需要的)
-    let minElement = "水";
-    let minScore = 99;
-    for(let key in scores) {
-        if(scores[key] < minScore) {
-            minScore = scores[key];
-            minElement = key;
-        }
+    // 統計五行
+    let stats = {"金":0, "木":0, "水":0, "火":0, "土":0};
+    ganZhi.forEach(gz => {
+        stats[elementMap[gz[0]]]++;
+        stats[elementMap[gz[1]]]++;
+    });
+
+    // 找出最缺的 (最小值)
+    let minEl = "金";
+    let minVal = 10;
+    for(let el in stats) {
+        if(stats[el] < minVal) { minVal = stats[el]; minEl = el; }
     }
 
-    displayResult(name, minElement);
+    displayResult(name, minEl, stats);
 }
 
-// 3. 渲染結果到前端
-function displayResult(name, element) {
-    const product = shoplineProducts[element];
-    const resultDiv = document.getElementById('result');
-    const analysisText = document.getElementById('analysisText');
-    const productDisplay = document.getElementById('productDisplay');
-
-    analysisText.innerText = `${name} 您好，您的五行中【${element}】較為薄弱，建議佩戴相關水晶來平衡能量。`;
-    
-    productDisplay.innerHTML = `
-        <img src="${product.img}" class="product-img">
-        <h4>推薦水晶：${product.name}</h4>
-        <p>${product.info}</p>
-        <a href="${product.url}" class="buy-btn">前往 Shopline 購買</a>
+function displayResult(name, minEl, stats) {
+    const product = products[minEl];
+    document.getElementById('analysisText').innerHTML = `
+        <strong>${name} 的能量報告：</strong><br>
+        您的八字中，【${minEl}】能量最為薄弱（僅佔 ${stats[minEl]}/8）。
+        這可能導致您在近期感到某些能量失衡，建議透過水晶原石的天然頻率進行對沖補足。
     `;
-
-    resultDiv.style.display = 'block';
-    window.scrollTo(0, document.body.scrollHeight);
+    
+    document.getElementById('productDisplay').innerHTML = `
+        <img src="${product.img}" class="product-img">
+        <div class="product-info">
+            <h4>命定水晶：${product.name}</h4>
+            <p style="font-size: 14px;">${product.info}</p>
+            <a href="${product.url}" class="buy-btn">點擊獲取專屬能量</a>
+        </div>
+    `;
+    
+    document.getElementById('result').style.display = 'block';
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 </script>
 
