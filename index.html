@@ -24,8 +24,11 @@
         }
         select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23aaa' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: calc(100% - 15px) center; }
 
-        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; color: #888; }
-        .checkbox-group input { width: 16px; height: 16px; margin: 0; }
+        /* 勾選框樣式優化 */
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 13px; color: #888; cursor: pointer; }
+        .checkbox-group input[type="checkbox"] { 
+            width: 20px; height: 20px; border-radius: 6px; border: 2px solid #444; appearance: auto; cursor: pointer;
+        }
 
         button#mainBtn { 
             width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-color) 0%, #333 150%); color: #121212; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; cursor: pointer;
@@ -64,36 +67,44 @@
     <div class="form-group">
         <label>性別</label>
         <select id="userGender">
-            <option value="男">男命 (乾造)</option>
-            <option value="女">女命 (坤造)</option>
+            <option value="男">男性</option>
+            <option value="女">女性</option>
         </select>
     </div>
     <div class="form-group"><label>出生日期</label><input type="date" id="birthDate"></div>
     
-    <div class="form-group" id="timeSelectionArea">
-        <label>出生時辰 / 時間</label>
-        <div style="display: flex; gap: 8px;">
-            <select id="userShiChen" style="flex: 1;" onchange="syncTimeFromShiChen()">
-                <option value="">選擇時辰</option>
-                <option value="00:00">子時 (23:00-01:00)</option>
-                <option value="02:00">丑時 (01:00-03:00)</option>
-                <option value="04:00">寅時 (03:00-05:00)</option>
-                <option value="06:00">卯時 (05:00-07:00)</option>
-                <option value="08:00">辰時 (07:00-09:00)</option>
-                <option value="10:00">巳時 (09:00-11:00)</option>
-                <option value="12:00">午時 (11:00-13:00)</option>
-                <option value="14:00">未時 (13:00-15:00)</option>
-                <option value="16:00">申時 (15:00-17:00)</option>
-                <option value="18:00">酉時 (17:00-19:00)</option>
-                <option value="20:00">戌時 (19:00-21:00)</option>
-                <option value="22:00">亥時 (21:00-23:00)</option>
-            </select>
-            <input type="time" id="birthTime" style="flex: 1;" value="12:00">
-        </div>
-        <div class="checkbox-group">
+    <div class="form-group">
+        <label>出生時間</label>
+        <select id="birthTime">
+            <option value="00:00">00:00 (子時)</option>
+            <option value="01:00">01:00 (丑時)</option>
+            <option value="02:00">02:00 (丑時)</option>
+            <option value="03:00">03:00 (寅時)</option>
+            <option value="04:00">04:00 (寅時)</option>
+            <option value="05:00">05:00 (卯時)</option>
+            <option value="06:00">06:00 (卯時)</option>
+            <option value="07:00">07:00 (辰時)</option>
+            <option value="08:00">08:00 (辰時)</option>
+            <option value="09:00">09:00 (巳時)</option>
+            <option value="10:00">10:00 (巳時)</option>
+            <option value="11:00">11:00 (午時)</option>
+            <option value="12:00" selected>12:00 (午時)</option>
+            <option value="13:00">13:00 (未時)</option>
+            <option value="14:00">14:00 (未時)</option>
+            <option value="15:00">15:00 (申時)</option>
+            <option value="16:00">16:00 (申時)</option>
+            <option value="17:00">17:00 (酉時)</option>
+            <option value="18:00">18:00 (酉時)</option>
+            <option value="19:00">19:00 (戌時)</option>
+            <option value="20:00">20:00 (戌時)</option>
+            <option value="21:00">21:00 (亥時)</option>
+            <option value="22:00">22:00 (亥時)</option>
+            <option value="23:00">23:00 (子時)</option>
+        </select>
+        <label class="checkbox-group">
             <input type="checkbox" id="unknownTime" onchange="handleUnknownTime(this)">
-            <span>我不確定具體出生時間（測算準確度可能受限）</span>
-        </div>
+            <span>我不確定具體出生時間 (預設下午12點)</span>
+        </label>
     </div>
 
     <button id="mainBtn" onclick="calculateBazi()">掃描能量場</button>
@@ -112,7 +123,7 @@
         </div>
 
         <div id="recommendArea" class="recommend-area">
-            <div style="font-size:12px; color:#777;">🔍 即時能量配對建議：</div>
+            <div style="font-size:12px; color:#777;">🔍 推薦水晶配對建議：</div>
             <div id="searchLinks"></div>
         </div>
 
@@ -126,20 +137,13 @@ const API_KEY = "sk-7accfbb7c3e3471bb5284983b0aaf3b0";
 const SHOPLINE_SEARCH_BASE = "https://www.changsangstore.com.hk/zh-hant/search?q=";
 const elementColors = {"金":"#ffd700","木":"#4caf50","水":"#2196f3","火":"#ff5252","土":"#ff9800"};
 
-// 時辰連動時間
-function syncTimeFromShiChen() {
-    const shichen = document.getElementById('userShiChen').value;
-    if (shichen) {
-        document.getElementById('birthTime').value = shichen;
-        document.getElementById('unknownTime').checked = false;
-    }
-}
-
-// 處理不確定時間
 function handleUnknownTime(checkbox) {
+    const timeSelect = document.getElementById('birthTime');
     if (checkbox.checked) {
-        document.getElementById('birthTime').value = "12:00";
-        document.getElementById('userShiChen').value = "";
+        timeSelect.value = "12:00";
+        timeSelect.disabled = true;
+    } else {
+        timeSelect.disabled = false;
     }
 }
 
@@ -149,14 +153,17 @@ function calculateBazi() {
     try {
         const dateStr = document.getElementById('birthDate').value;
         if(!dateStr) { alert("請選擇日期"); btn.innerText = "掃描能量場"; return; }
-        const dateArr = dateStr.split('-'); const timeArr = document.getElementById('birthTime').value.split(':');
+        const dateArr = dateStr.split('-'); 
+        const timeVal = document.getElementById('birthTime').value;
+        const timeArr = timeVal.split(':');
+        
         const solar = Solar.fromYmdHms(parseInt(dateArr[0]), parseInt(dateArr[1]), parseInt(dateArr[2]), parseInt(timeArr[0]), parseInt(timeArr[1]), 0);
         const eightChars = solar.getLunar().getEightChar();
         const gz = [[eightChars.getYearGan(), eightChars.getYearZhi()],[eightChars.getMonthGan(), eightChars.getMonthZhi()],[eightChars.getDayGan(), eightChars.getDayZhi()],[eightChars.getTimeGan(), eightChars.getTimeZhi()]];
         
         const gender = document.getElementById('userGender').value;
-        const timeNote = document.getElementById('unknownTime').checked ? "時辰不詳" : "時辰已知";
-        currentBaziData = `性別:${gender}, 年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}, 備註:${timeNote}`;
+        const timeNote = document.getElementById('unknownTime').checked ? "時辰不詳 (預設午時)" : `時間:${timeVal}`;
+        currentBaziData = `性別:${gender}, 年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}, 狀態:${timeNote}`;
 
         const elementMap = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水","子":"水","亥":"水","寅":"木","卯":"木","巳":"火","午":"火","申":"金","酉":"金","辰":"土","戌":"土","丑":"土","未":"土"};
         let stats = {"金":0, "木":0, "水":0, "火":0, "土":0};
@@ -203,10 +210,9 @@ async function askAI(category, btn) {
                         穩定要求：
                         1. 使用繁體中文。
                         2. 必須首先根據今年的五行運勢客觀推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。
-                        3. 隨後進行深度分析，內容必須統一使用「公曆月份」。
-                        4. 針對 2026 年四個季度提供穩定的預測和適配的水晶。若用戶備註為「時辰不詳」，請在分析開頭說明由於時辰缺失，分析側重於年、月、日的能量特質。
-                        5. 加粗重點，使用表情符號，語氣平和客觀。
-                        6. 推薦水晶時說明此為能量平衡工具。` },
+                        3. 隨後進行深度分析，內容必須統一使用「公曆月份」。分析內容應包含2026年全年的走勢。
+                        4. 加粗重點，使用表情符號，語氣平和客觀。
+                        5. 結尾請說明水晶為能量平衡工具。` },
                     { role: "user", content: `姓名：${document.getElementById('userName').value}。八字、性別與時辰狀態：${currentBaziData}。缺失：${currentMinEl}。分析【${category}】。` }
                 ]
             })
@@ -214,6 +220,8 @@ async function askAI(category, btn) {
 
         const data = await response.json();
         const fullContent = data.choices[0].message.content;
+        
+        // 提取推薦
         const recMatch = fullContent.match(/\[REC\]:(.+)/);
         if(recMatch) {
             const list = recMatch[1].split(',');
@@ -222,10 +230,13 @@ async function askAI(category, btn) {
             list.forEach(name => {
                 linkBox.innerHTML += `<a href="${SHOPLINE_SEARCH_BASE + encodeURIComponent(name.trim())}" target="_blank" class="search-btn">✨ 獲取【${name.trim()}】<span>進入店舖</span></a>`;
             });
+            // 推薦區塊在分析文字上方顯示，實現「推薦水晶為先」
             recArea.style.display = 'block';
         }
+
+        // 移除標記後顯示分析文字
         display.innerHTML = fullContent.replace(/\[REC\]:.+/, "").replace(/\*\*(.*?)\*\*/g, `<b class="color-${currentMinEl}">$1</b>`).replace(/\n/g, "<br>");
-        setTimeout(() => { display.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
+        
     } catch (e) { display.innerHTML = "系統繁忙，請稍後重試。"; }
 }
 </script>
