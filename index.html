@@ -3,27 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>AURA_LAB | AI 能量指南</title>
+    <title>AURA_LAB | 深度能量指南</title>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
         :root { --accent-color: #d4af37; --text-main: #e0e0e0; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "PingFang HK", sans-serif; 
-            background: #121212; 
-            color: var(--text-main); 
-            margin: 0; 
-            padding: 15px; 
-            line-height: 1.8;
-            touch-action: manipulation;
+            background: #121212; color: var(--text-main); margin: 0; padding: 15px; line-height: 1.8; touch-action: manipulation;
         }
         .container { 
-            max-width: 480px; 
-            margin: 10px auto; 
-            background: #1e1e1e; 
-            padding: 25px 20px; 
-            border-radius: 24px; 
-            border: 1px solid #333; 
-            box-sizing: border-box; 
+            max-width: 480px; margin: 10px auto; background: #1e1e1e; padding: 25px 20px; border-radius: 24px; border: 1px solid #333; box-sizing: border-box; 
         }
         h2 { text-align: center; color: var(--accent-color); letter-spacing: 4px; margin-bottom: 30px; }
 
@@ -31,30 +20,15 @@
         label { display: block; margin-bottom: 8px; font-size: 13px; color: #aaa; }
         
         input, select { 
-            width: 100%; 
-            padding: 14px; 
-            background: #2a2a2a; 
-            border: 1px solid #444; 
-            border-radius: 12px; 
-            color: white; 
-            box-sizing: border-box; 
-            font-size: 16px; 
-            -webkit-appearance: none;
-            outline: none;
+            width: 100%; padding: 14px; background: #2a2a2a; border: 1px solid #444; border-radius: 12px; color: white; box-sizing: border-box; font-size: 16px; -webkit-appearance: none; outline: none;
         }
-        /* 性別選擇特有樣式 */
         select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23aaa' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: calc(100% - 15px) center; }
 
+        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; color: #888; }
+        .checkbox-group input { width: 16px; height: 16px; margin: 0; }
+
         button#mainBtn { 
-            width: 100%; 
-            padding: 16px; 
-            background: linear-gradient(135deg, var(--accent-color) 0%, #333 150%); 
-            color: #121212; 
-            border: none; 
-            border-radius: 12px; 
-            font-size: 17px; 
-            font-weight: bold; 
-            cursor: pointer;
+            width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-color) 0%, #333 150%); color: #121212; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; cursor: pointer;
         }
 
         #result { margin-top: 35px; display: none; }
@@ -95,7 +69,33 @@
         </select>
     </div>
     <div class="form-group"><label>出生日期</label><input type="date" id="birthDate"></div>
-    <div class="form-group"><label>出生時辰</label><input type="time" id="birthTime" value="12:00"></div>
+    
+    <div class="form-group" id="timeSelectionArea">
+        <label>出生時辰 / 時間</label>
+        <div style="display: flex; gap: 8px;">
+            <select id="userShiChen" style="flex: 1;" onchange="syncTimeFromShiChen()">
+                <option value="">選擇時辰</option>
+                <option value="00:00">子時 (23:00-01:00)</option>
+                <option value="02:00">丑時 (01:00-03:00)</option>
+                <option value="04:00">寅時 (03:00-05:00)</option>
+                <option value="06:00">卯時 (05:00-07:00)</option>
+                <option value="08:00">辰時 (07:00-09:00)</option>
+                <option value="10:00">巳時 (09:00-11:00)</option>
+                <option value="12:00">午時 (11:00-13:00)</option>
+                <option value="14:00">未時 (13:00-15:00)</option>
+                <option value="16:00">申時 (15:00-17:00)</option>
+                <option value="18:00">酉時 (17:00-19:00)</option>
+                <option value="20:00">戌時 (19:00-21:00)</option>
+                <option value="22:00">亥時 (21:00-23:00)</option>
+            </select>
+            <input type="time" id="birthTime" style="flex: 1;" value="12:00">
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="unknownTime" onchange="handleUnknownTime(this)">
+            <span>我不確定具體出生時間（測算準確度可能受限）</span>
+        </div>
+    </div>
+
     <button id="mainBtn" onclick="calculateBazi()">掃描能量場</button>
 
     <div id="result">
@@ -126,6 +126,23 @@ const API_KEY = "sk-7accfbb7c3e3471bb5284983b0aaf3b0";
 const SHOPLINE_SEARCH_BASE = "https://www.changsangstore.com.hk/zh-hant/search?q=";
 const elementColors = {"金":"#ffd700","木":"#4caf50","水":"#2196f3","火":"#ff5252","土":"#ff9800"};
 
+// 時辰連動時間
+function syncTimeFromShiChen() {
+    const shichen = document.getElementById('userShiChen').value;
+    if (shichen) {
+        document.getElementById('birthTime').value = shichen;
+        document.getElementById('unknownTime').checked = false;
+    }
+}
+
+// 處理不確定時間
+function handleUnknownTime(checkbox) {
+    if (checkbox.checked) {
+        document.getElementById('birthTime').value = "12:00";
+        document.getElementById('userShiChen').value = "";
+    }
+}
+
 function calculateBazi() {
     const btn = document.getElementById('mainBtn');
     btn.innerText = "計算中...";
@@ -137,9 +154,9 @@ function calculateBazi() {
         const eightChars = solar.getLunar().getEightChar();
         const gz = [[eightChars.getYearGan(), eightChars.getYearZhi()],[eightChars.getMonthGan(), eightChars.getMonthZhi()],[eightChars.getDayGan(), eightChars.getDayZhi()],[eightChars.getTimeGan(), eightChars.getTimeZhi()]];
         
-        // 資訊中加入性別，供 AI 參考
         const gender = document.getElementById('userGender').value;
-        currentBaziData = `性別:${gender}, 年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}`;
+        const timeNote = document.getElementById('unknownTime').checked ? "時辰不詳" : "時辰已知";
+        currentBaziData = `性別:${gender}, 年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}, 備註:${timeNote}`;
 
         const elementMap = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水","子":"水","亥":"水","寅":"木","卯":"木","巳":"火","午":"火","申":"金","酉":"金","辰":"土","戌":"土","丑":"土","未":"土"};
         let stats = {"金":0, "木":0, "水":0, "火":0, "土":0};
@@ -187,10 +204,10 @@ async function askAI(category, btn) {
                         1. 使用繁體中文。
                         2. 必須首先根據今年的五行運勢客觀推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。
                         3. 隨後進行深度分析，內容必須統一使用「公曆月份」。
-                        4. 針對 2026 年四個季度提供穩定的預測和適配的水晶，並請務必根據用戶提供的性別（乾造/坤造）來調整運勢解讀的側重點。
+                        4. 針對 2026 年四個季度提供穩定的預測和適配的水晶。若用戶備註為「時辰不詳」，請在分析開頭說明由於時辰缺失，分析側重於年、月、日的能量特質。
                         5. 加粗重點，使用表情符號，語氣平和客觀。
                         6. 推薦水晶時說明此為能量平衡工具。` },
-                    { role: "user", content: `姓名：${document.getElementById('userName').value}。八字與性別：${currentBaziData}。缺失：${currentMinEl}。分析【${category}】。` }
+                    { role: "user", content: `姓名：${document.getElementById('userName').value}。八字、性別與時辰狀態：${currentBaziData}。缺失：${currentMinEl}。分析【${category}】。` }
                 ]
             })
         });
