@@ -119,7 +119,7 @@ async function askAI(category, btn) {
     btn.classList.add('active');
     const display = document.getElementById('fortuneText');
     const recArea = document.getElementById('recommendArea');
-    display.innerHTML = `<b class="color-${currentMinEl}">🔮 AI 正在穩定讀取 2026 公曆能量走勢...</b>`;
+    display.innerHTML = `<b class="color-${currentMinEl}">🔮 正在連接星盤數據並進行 AI 深度解讀...</b>`;
     recArea.style.display = 'none';
 
     try {
@@ -131,11 +131,12 @@ async function askAI(category, btn) {
                 messages: [
                     { role: "system", content: `你是一位資深五行能量分析師。
                         穩定要求：
-                        1. 必須先推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。
-                        2. 隨後進行深度分析，內容必須統一使用「公曆月份」。
-                        3. 針對 2026 年四個季度提供穩定的預測。
-                        4. 加粗重點，使用表情符號，語氣平和客觀。
-                        5. 推薦水晶時說明此為能量平衡工具。` },
+                        1. 使用繁體中文。
+                        2. 必須先根據今年的五行運勢客觀推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。
+                        3. 隨後進行深度分析，內容必須統一使用「公曆月份」。
+                        4. 針對 2026 年四個季度提供穩定的預測和適配的水晶。
+                        5. 加粗重點，使用表情符號，語氣平和客觀。
+                        6. 推薦水晶時說明此為能量平衡工具。` },
                     { role: "user", content: `姓名：${document.getElementById('userName').value}。八字：${currentBaziData}。缺失：${currentMinEl}。分析【${category}】。` }
                 ]
             })
@@ -163,3 +164,4 @@ async function askAI(category, btn) {
 </script>
 </body>
 </html>
+
