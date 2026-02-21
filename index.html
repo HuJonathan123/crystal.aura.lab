@@ -14,7 +14,6 @@
             margin: 0; 
             padding: 15px; 
             line-height: 1.8;
-            /* 改善手機點擊延遲 */
             touch-action: manipulation;
         }
         .container { 
@@ -31,8 +30,7 @@
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-size: 13px; color: #aaa; }
         
-        /* 修正手機輸入框外觀與大小 */
-        input { 
+        input, select { 
             width: 100%; 
             padding: 14px; 
             background: #2a2a2a; 
@@ -41,11 +39,11 @@
             color: white; 
             box-sizing: border-box; 
             font-size: 16px; 
-            /* 移除 iOS 默認內陰影與圓角 */
             -webkit-appearance: none;
             outline: none;
         }
-        input:focus { border-color: var(--accent-color); }
+        /* 性別選擇特有樣式 */
+        select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23aaa' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: calc(100% - 15px) center; }
 
         button#mainBtn { 
             width: 100%; 
@@ -57,7 +55,6 @@
             font-size: 17px; 
             font-weight: bold; 
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
         }
 
         #result { margin-top: 35px; display: none; }
@@ -76,7 +73,7 @@
         .bg-金 { background: #ffd700; } .bg-木 { background: #4caf50; } .bg-水 { background: #2196f3; } .bg-火 { background: #ff5252; } .bg-土 { background: #ff9800; }
 
         .fortune-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-        .tab-btn { padding: 10px; background: #2a2a2a; border: 1px solid #444; color: #888; border-radius: 8px; cursor: pointer; font-size: 12px; -webkit-tap-highlight-color: transparent; }
+        .tab-btn { padding: 10px; background: #2a2a2a; border: 1px solid #444; color: #888; border-radius: 8px; cursor: pointer; font-size: 12px; }
         .tab-btn.active { background: var(--accent-color); color: #121212; font-weight: bold; }
 
         .recommend-area { margin-bottom: 20px; display: none; }
@@ -90,6 +87,13 @@
 <div class="container">
     <h2 id="storeTitle">AURA_LAB</h2>
     <div class="form-group"><label>姓名</label><input type="text" id="userName" placeholder="輸入姓名"></div>
+    <div class="form-group">
+        <label>性別</label>
+        <select id="userGender">
+            <option value="男">男命 (乾造)</option>
+            <option value="女">女命 (坤造)</option>
+        </select>
+    </div>
     <div class="form-group"><label>出生日期</label><input type="date" id="birthDate"></div>
     <div class="form-group"><label>出生時辰</label><input type="time" id="birthTime" value="12:00"></div>
     <button id="mainBtn" onclick="calculateBazi()">掃描能量場</button>
@@ -123,27 +127,19 @@ const SHOPLINE_SEARCH_BASE = "https://www.changsangstore.com.hk/zh-hant/search?q
 const elementColors = {"金":"#ffd700","木":"#4caf50","水":"#2196f3","火":"#ff5252","土":"#ff9800"};
 
 function calculateBazi() {
-    // 增加加載狀態反饋
     const btn = document.getElementById('mainBtn');
     btn.innerText = "計算中...";
-
     try {
         const dateStr = document.getElementById('birthDate').value;
-        if(!dateStr) {
-            alert("請選擇日期");
-            btn.innerText = "掃描能量場";
-            return;
-        }
-        
-        const dateArr = dateStr.split('-'); 
-        const timeArr = document.getElementById('birthTime').value.split(':');
-        
-        // 確保 Lunar 庫可用
+        if(!dateStr) { alert("請選擇日期"); btn.innerText = "掃描能量場"; return; }
+        const dateArr = dateStr.split('-'); const timeArr = document.getElementById('birthTime').value.split(':');
         const solar = Solar.fromYmdHms(parseInt(dateArr[0]), parseInt(dateArr[1]), parseInt(dateArr[2]), parseInt(timeArr[0]), parseInt(timeArr[1]), 0);
         const eightChars = solar.getLunar().getEightChar();
         const gz = [[eightChars.getYearGan(), eightChars.getYearZhi()],[eightChars.getMonthGan(), eightChars.getMonthZhi()],[eightChars.getDayGan(), eightChars.getDayZhi()],[eightChars.getTimeGan(), eightChars.getTimeZhi()]];
         
-        currentBaziData = `年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}`;
+        // 資訊中加入性別，供 AI 參考
+        const gender = document.getElementById('userGender').value;
+        currentBaziData = `性別:${gender}, 年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}`;
 
         const elementMap = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水","子":"水","亥":"水","寅":"木","卯":"木","巳":"火","午":"火","申":"金","酉":"金","辰":"土","戌":"土","丑":"土","未":"土"};
         let stats = {"金":0, "木":0, "水":0, "火":0, "土":0};
@@ -165,29 +161,18 @@ function calculateBazi() {
             const per = (stats[el] / 8 * 100).toFixed(0);
             statsCon.innerHTML += `<div class="stat-row"><div class="stat-label"><span>${el}</span><span>${per}%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill bg-${el}" style="width:${per}%"></div></div></div>`;
         });
-        
         document.getElementById('result').style.display = 'block';
         btn.innerText = "掃描成功";
-        
-        // 平滑滾動到結果
-        setTimeout(() => {
-            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
-        }, 300);
-
-    } catch (e) {
-        console.error(e);
-        alert("計算發生錯誤，請刷新頁面重試。");
-        btn.innerText = "掃描能量場";
-    }
+        setTimeout(() => { document.getElementById('result').scrollIntoView({ behavior: 'smooth' }); }, 300);
+    } catch (e) { alert("出錯了，請檢查輸入內容。"); btn.innerText = "掃描能量場"; }
 }
 
-// 嚴格保留你要求的 askAI 邏輯與 System Prompt
 async function askAI(category, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const display = document.getElementById('fortuneText');
     const recArea = document.getElementById('recommendArea');
-    display.innerHTML = `<b class="color-${currentMinEl}">🔮 正在連接星盤數據並進行 AI 深度解讀...</b>`;
+    display.innerHTML = `<b class="color-${currentMinEl}">🔮 正在連接星盤數據並進行深度解讀...</b>`;
     recArea.style.display = 'none';
 
     try {
@@ -202,17 +187,16 @@ async function askAI(category, btn) {
                         1. 使用繁體中文。
                         2. 必須首先根據今年的五行運勢客觀推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。
                         3. 隨後進行深度分析，內容必須統一使用「公曆月份」。
-                        4. 針對 2026 年四個季度提供穩定的預測和適配的水晶。
+                        4. 針對 2026 年四個季度提供穩定的預測和適配的水晶，並請務必根據用戶提供的性別（乾造/坤造）來調整運勢解讀的側重點。
                         5. 加粗重點，使用表情符號，語氣平和客觀。
                         6. 推薦水晶時說明此為能量平衡工具。` },
-                    { role: "user", content: `姓名：${document.getElementById('userName').value}。八字：${currentBaziData}。缺失：${currentMinEl}。分析【${category}】。` }
+                    { role: "user", content: `姓名：${document.getElementById('userName').value}。八字與性別：${currentBaziData}。缺失：${currentMinEl}。分析【${category}】。` }
                 ]
             })
         });
 
         const data = await response.json();
         const fullContent = data.choices[0].message.content;
-        
         const recMatch = fullContent.match(/\[REC\]:(.+)/);
         if(recMatch) {
             const list = recMatch[1].split(',');
@@ -223,17 +207,9 @@ async function askAI(category, btn) {
             });
             recArea.style.display = 'block';
         }
-
         display.innerHTML = fullContent.replace(/\[REC\]:.+/, "").replace(/\*\*(.*?)\*\*/g, `<b class="color-${currentMinEl}">$1</b>`).replace(/\n/g, "<br>");
-        
-        // 自動滾動到分析內容
-        setTimeout(() => {
-            display.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
-
-    } catch (e) { 
-        display.innerHTML = "系統繁忙，請稍後重試。"; 
-    }
+        setTimeout(() => { display.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
+    } catch (e) { display.innerHTML = "系統繁忙，請稍後重試。"; }
 }
 </script>
 </body>
