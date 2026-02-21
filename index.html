@@ -3,59 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA_LAB | 專屬五行命定水晶測算</title>
+    <title>AURA_LAB | AI 智能水晶配對</title>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
-        body { font-family: 'PingFang HK', 'Helvetica Neue', sans-serif; background: #121212; color: #e0e0e0; margin: 0; padding: 20px; line-height: 1.6; }
-        .container { max-width: 480px; margin: 0 auto; background: #1e1e1e; padding: 30px 20px; border-radius: 24px; border: 1px solid #333; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-        h2 { text-align: center; color: #d4af37; letter-spacing: 4px; margin-bottom: 5px; text-transform: uppercase; }
-        .subtitle { text-align: center; font-size: 11px; color: #777; margin-bottom: 30px; letter-spacing: 1px; }
+        body { font-family: 'PingFang HK', sans-serif; background: #121212; color: #e0e0e0; margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 480px; margin: 0 auto; background: #1e1e1e; padding: 30px 20px; border-radius: 24px; border: 1px solid #333; }
+        h2 { text-align: center; color: #d4af37; letter-spacing: 4px; }
+        .subtitle { text-align: center; font-size: 11px; color: #777; margin-bottom: 30px; }
 
-        /* 表單樣式 */
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-size: 13px; color: #aaa; }
         input { width: 100%; padding: 14px; background: #2a2a2a; border: 1px solid #444; border-radius: 12px; color: white; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 16px; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #121212; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button#mainBtn { width: 100%; padding: 16px; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #121212; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; cursor: pointer; }
 
-        /* 結果區塊 */
-        #result { margin-top: 35px; display: none; animation: slideUp 0.8s ease-out forwards; }
+        #result { margin-top: 35px; display: none; }
         
         /* 八字表格 */
-        .bazi-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border-radius: 12px; overflow: hidden; border: 1px solid #444; }
-        .bazi-table th, .bazi-table td { padding: 12px; text-align: center; border: 1px solid #333; }
-        .bazi-table th { background: #252525; color: #d4af37; font-size: 12px; }
-        .data-cell { font-size: 20px; font-weight: bold; color: #fff; }
+        .bazi-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #444; text-align: center; }
+        .bazi-table td { padding: 10px; border: 1px solid #333; }
+        .data-cell { font-size: 20px; font-weight: bold; }
 
         /* 進度條 */
-        .stats-container { margin-bottom: 25px; }
         .stat-row { margin-bottom: 12px; }
-        .stat-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; color: #ccc; }
+        .stat-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
         .progress-bar-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; width: 0%; transition: width 1.5s cubic-bezier(0.1, 0.5, 0.2, 1); }
+        .progress-bar-fill { height: 100%; width: 0%; transition: width 1s; }
         .bg-金 { background: #ffd700; } .bg-木 { background: #4caf50; } .bg-水 { background: #2196f3; } .bg-火 { background: #ff5252; } .bg-土 { background: #ff9800; }
 
-        /* 運勢互動區 */
-        .fortune-section { margin-top: 25px; margin-bottom: 30px; }
-        .fortune-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
-        .tab-btn { padding: 10px 5px; background: #2a2a2a; border: 1px solid #444; color: #888; border-radius: 8px; cursor: pointer; font-size: 12px; transition: 0.3s; }
-        .tab-btn.active { background: #d4af37; color: #121212; border-color: #d4af37; font-weight: bold; }
-        .fortune-content { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 18px; font-size: 14px; color: #ccc; border: 1px dashed #444; min-height: 100px; }
-        .highlight { color: #d4af37; font-weight: bold; }
+        /* AI 運勢區 */
+        .fortune-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .tab-btn { padding: 10px; background: #2a2a2a; border: 1px solid #444; color: #888; border-radius: 8px; cursor: pointer; font-size: 12px; }
+        .tab-btn.active { background: #d4af37; color: #121212; font-weight: bold; }
+        .fortune-content { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 18px; font-size: 14px; color: #ccc; border: 1px dashed #444; min-height: 120px; }
 
-        /* 產品卡片 */
-        .product-card { background: #fff; border-radius: 20px; overflow: hidden; color: #121212; margin-top: 20px; }
-        .product-img { width: 100%; height: 260px; object-fit: cover; }
-        .product-info { padding: 20px; text-align: center; }
-        .buy-btn { display: block; padding: 14px; background: #121212; color: #fff; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 15px; }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        /* 動態產品推薦區 */
+        .recommend-title { margin-top: 30px; font-size: 14px; color: #d4af37; border-bottom: 1px solid #d4af37; display: inline-block; padding-bottom: 5px; }
+        .search-links-container { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .search-btn { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: #fff; color: #121212; text-decoration: none; border-radius: 12px; font-weight: bold; transition: 0.3s; }
+        .search-btn:hover { background: #d4af37; }
+        .search-btn span { font-size: 12px; color: #666; font-weight: normal; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>AURA_LAB</h2>
-    <div class="subtitle">CRYSTAL & ENERGY ALGORITHM</div>
+    <div class="subtitle">AI ENERGY ANALYSIS & SEARCH</div>
     
     <div class="form-group">
         <label>姓名 / NAME</label>
@@ -69,40 +62,39 @@
         <label>出生時辰 / TIME</label>
         <input type="time" id="birthTime" value="12:00">
     </div>
-    <button onclick="calculateBazi()">開啟能量掃描</button>
+    <button id="mainBtn" onclick="calculateBazi()">開啟能量掃描</button>
 
     <div id="result">
         <table class="bazi-table">
-            <thead><tr><th></th><th>年柱</th><th>月柱</th><th>日柱</th><th>時柱</th></tr></thead>
-            <tbody><tr id="rowTianGan"></tr><tr id="rowDiZhi"></tr></tbody>
+            <tr id="rowTianGan"></tr>
+            <tr id="rowDiZhi"></tr>
         </table>
-
         <div class="stats-container" id="statsContainer"></div>
 
         <div class="fortune-section">
-            <div style="font-size:12px; color:#777; margin-bottom:10px;">2026 深度運勢解碼</div>
             <div class="fortune-tabs">
-                <button class="tab-btn active" onclick="switchFortune('money', this)">財運</button>
-                <button class="tab-btn" onclick="switchFortune('love', this)">桃花</button>
-                <button class="tab-btn" onclick="switchFortune('health', this)">健康</button>
-                <button class="tab-btn" onclick="switchFortune('study', this)">學業</button>
+                <button class="tab-btn" onclick="askAI('財運', this)">💰 財運</button>
+                <button class="tab-btn" onclick="askAI('桃花', this)">❤️ 桃花</button>
+                <button class="tab-btn" onclick="askAI('事業', this)">💼 事業</button>
+                <button class="tab-btn" onclick="askAI('學業', this)">📚 學業</button>
+                <button class="tab-btn" onclick="askAI('情緒', this)">🧘 情緒</button>
+                <button class="tab-btn" onclick="askAI('健康', this)">🏥 健康</button>
             </div>
-            <div class="fortune-content" id="fortuneText">載入中...</div>
+            <div class="fortune-content" id="fortuneText">請選擇分類...</div>
         </div>
 
-        <div id="productDisplay" class="product-card"></div>
+        <div id="recommendArea" style="display:none;">
+            <div class="recommend-title">能量平衡配對建議</div>
+            <div class="search-links-container" id="searchLinks"></div>
+        </div>
     </div>
 </div>
 
 <script>
+let currentBaziData = "";
 let currentMinEl = "";
-const products = {
-    "金": { name: "白水晶 (Clear Quartz)", info: "補足「金」能量，協助淨化氣場，提升決斷力與思緒清晰度。", img: "https://images.unsplash.com/photo-1567606401069-953503201103?auto=format&fit=crop&q=80&w=600", url: "#" },
-    "木": { name: "綠幽靈 (Green Phantom)", info: "強化「木」元素，啟動事業生機，吸引貴人助益與正財機會。", img: "https://images.unsplash.com/photo-1627734135359-598d9c57d197?auto=format&fit=crop&q=80&w=600", url: "#" },
-    "水": { name: "黑曜石 (Obsidian)", info: "補償「水」能量，極強的避邪化煞能力，守護心靈平穩與安定。", img: "https://images.unsplash.com/photo-1506362802273-df10b3988077?auto=format&fit=crop&q=80&w=600", url: "#" },
-    "火": { name: "紅紋石 (Rhodochrosite)", info: "增強「火」元素，提升個人魅力與熱情，化解人際隔閡，招來正緣。", img: "https://images.unsplash.com/photo-1605333396915-47ed6b68a00e?auto=format&fit=crop&q=80&w=600", url: "#" },
-    "土": { name: "黃水晶 (Citrine)", info: "穩固「土」能量，對應財庫豐盈，增強行動力與踏實的自信感。", img: "https://images.unsplash.com/photo-1596280608464-2453f600f723?auto=format&fit=crop&q=80&w=600", url: "#" }
-};
+const API_KEY = "sk-7accfbb7c3e3471bb5284983b0aaf3b0";
+const SHOPLINE_SEARCH_BASE = "https://www.changsangstore.com.hk/zh-hant/search?q=";
 
 const elementMap = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水","子":"水","亥":"水","寅":"木","卯":"木","巳":"火","午":"火","申":"金","酉":"金","辰":"土","戌":"土","丑":"土","未":"土"};
 
@@ -110,59 +102,67 @@ function calculateBazi() {
     const dateStr = document.getElementById('birthDate').value;
     const timeStr = document.getElementById('birthTime').value;
     if(!dateStr) return alert("請輸入日期");
-
-    const dateArr = dateStr.split('-');
-    const timeArr = timeStr.split(':');
+    const dateArr = dateStr.split('-'); const timeArr = timeStr.split(':');
     const solar = Solar.fromYmdHms(parseInt(dateArr[0]), parseInt(dateArr[1]), parseInt(dateArr[2]), parseInt(timeArr[0]), parseInt(timeArr[1]), 0);
     const eightChars = solar.getLunar().getEightChar();
     const gz = [[eightChars.getYearGan(), eightChars.getYearZhi()],[eightChars.getMonthGan(), eightChars.getMonthZhi()],[eightChars.getDayGan(), eightChars.getDayZhi()],[eightChars.getTimeGan(), eightChars.getTimeZhi()]];
+    currentBaziData = `年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}`;
 
-    document.getElementById('rowTianGan').innerHTML = `<td class="label-cell">天干</td>` + gz.map(item => `<td class="data-cell">${item[0]}</td>`).join('');
-    document.getElementById('rowDiZhi').innerHTML = `<td class="label-cell">地支</td>` + gz.map(item => `<td class="data-cell">${item[1]}</td>`).join('');
+    document.getElementById('rowTianGan').innerHTML = `<td>天干</td>` + gz.map(item => `<td class="data-cell">${item[0]}</td>`).join('');
+    document.getElementById('rowDiZhi').innerHTML = `<td>地支</td>` + gz.map(item => `<td class="data-cell">${item[1]}</td>`).join('');
 
     let stats = {"金":0, "木":0, "水":0, "火":0, "土":0};
     gz.forEach(p => { stats[elementMap[p[0]]]++; stats[elementMap[p[1]]]++; });
-
     currentMinEl = "金"; let minVal = 9;
     for(let key in stats) { if(stats[key] < minVal) { minVal = stats[key]; currentMinEl = key; } }
 
     const statsCon = document.getElementById('statsContainer');
-    statsCon.innerHTML = '<div style="font-size:12px; color:#777; margin-bottom:10px;">ELEMENTAL BALANCE</div>';
+    statsCon.innerHTML = '';
     ["金", "木", "水", "火", "土"].forEach(el => {
         const per = (stats[el] / 8 * 100).toFixed(0);
-        statsCon.innerHTML += `<div class="stat-row"><div class="stat-label"><span>${el} ELEMENT</span><span>${per}%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill bg-${el}" style="width:${per}%"></div></div></div>`;
+        statsCon.innerHTML += `<div class="stat-row"><div class="stat-label"><span>${el}</span><span>${per}%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill bg-${el}" style="width:${per}%"></div></div></div>`;
     });
-
     document.getElementById('result').style.display = 'block';
-    switchFortune('money', document.querySelector('.tab-btn'));
-
-    const prod = products[currentMinEl];
-    document.getElementById('productDisplay').innerHTML = `<img src="${prod.img}" class="product-img"><div class="product-info"><h4>${prod.name}</h4><p>${prod.info}</p><a href="${prod.url}" class="buy-btn">GET YOUR ENERGY ID</a></div>`;
-    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
 }
 
-function switchFortune(type, btn) {
+async function askAI(category, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const fortuneBox = document.getElementById('fortuneText');
-    const name = document.getElementById('userName').value || "有緣人";
-    
-    let content = "";
-    switch(type) {
-        case 'money':
-            content = `${name}，2026丙午年財星波動。由於您命盤缺<span class="highlight">${currentMinEl}</span>，春季需防意外開支。建議佩戴水晶以穩固財庫能量。`;
-            break;
-        case 'love':
-            content = `桃花磁場在秋季最強。但<span class="highlight">${currentMinEl}</span>能量不足易導致溝通誤解。佩戴對應水晶能過濾爛桃花，吸引優質正緣。`;
-            break;
-        case 'health':
-            content = `注意情緒壓力對身體的影響。補足<span class="highlight">${currentMinEl}</span>能提升免疫磁場，緩解焦慮。建議保持作息規律並結合能量石輔助。`;
-            break;
-        case 'study':
-            content = `文昌位能量因<span class="highlight">${currentMinEl}</span>缺失而受阻，專注力易渙散。補足能量後可提升思維敏捷度，助您在考核中發揮實力。`;
-            break;
-    }
-    fortuneBox.innerHTML = content;
+    const display = document.getElementById('fortuneText');
+    const recommendArea = document.getElementById('recommendArea');
+    display.innerHTML = "正在調用 DeepSeek AI 進行深度計算...";
+    recommendArea.style.display = 'none';
+
+    try {
+        const response = await fetch("https://api.deepseek.com/chat/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
+            body: JSON.stringify({
+                model: "deepseek-chat",
+                messages: [
+                    { role: "system", content: "你是一位五行能量分析師。請分析運勢。最後請客觀推薦三款最適合的水晶種類。回覆最後一行必須嚴格遵守格式：[REC]:水晶1,水晶2,水晶3" },
+                    { role: "user", content: `用戶：${document.getElementById('userName').value || '有緣人'}。八字：${currentBaziData}。缺：${currentMinEl}。分析【${category}】運勢。` }
+                ]
+            })
+        });
+
+        const data = await response.json();
+        const fullContent = data.choices[0].message.content;
+        const recMatch = fullContent.match(/\[REC\]:(.+)/);
+        const crystalList = recMatch ? recMatch[1].split(',') : [];
+        
+        display.innerHTML = fullContent.replace(/\[REC\]:.+/, "").replace(/\n/g, '<br>');
+        
+        if(crystalList.length > 0) {
+            const linkBox = document.getElementById('searchLinks');
+            linkBox.innerHTML = '';
+            crystalList.forEach(name => {
+                const searchUrl = SHOPLINE_SEARCH_BASE + encodeURIComponent(name.trim());
+                linkBox.innerHTML += `<a href="${searchUrl}" target="_blank" class="search-btn">🔍 搜尋【${name.trim()}】<span>進入 Shopline 店舖</span></a>`;
+            });
+            recommendArea.style.display = 'block';
+        }
+    } catch (error) { display.innerHTML = "AI 連接失敗，請檢查網路。"; }
 }
 </script>
 </body>
