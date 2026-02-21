@@ -2,31 +2,73 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>AURA_LAB | AI 能量指南</title>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
         :root { --accent-color: #d4af37; --text-main: #e0e0e0; }
-        body { font-family: 'PingFang HK', sans-serif; background: #121212; color: var(--text-main); margin: 0; padding: 20px; line-height: 1.8; }
-        .container { max-width: 480px; margin: 0 auto; background: #1e1e1e; padding: 30px 20px; border-radius: 24px; border: 1px solid #333; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang HK", sans-serif; 
+            background: #121212; 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 15px; 
+            line-height: 1.8;
+            /* 改善手機點擊延遲 */
+            touch-action: manipulation;
+        }
+        .container { 
+            max-width: 480px; 
+            margin: 10px auto; 
+            background: #1e1e1e; 
+            padding: 25px 20px; 
+            border-radius: 24px; 
+            border: 1px solid #333; 
+            box-sizing: border-box; 
+        }
         h2 { text-align: center; color: var(--accent-color); letter-spacing: 4px; margin-bottom: 30px; }
 
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-size: 13px; color: #aaa; }
-        input { width: 100%; padding: 14px; background: #2a2a2a; border: 1px solid #444; border-radius: 12px; color: white; box-sizing: border-box; font-size: 16px; }
-        button#mainBtn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-color) 0%, #333 150%); color: #121212; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; cursor: pointer; }
+        
+        /* 修正手機輸入框外觀與大小 */
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            background: #2a2a2a; 
+            border: 1px solid #444; 
+            border-radius: 12px; 
+            color: white; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            /* 移除 iOS 默認內陰影與圓角 */
+            -webkit-appearance: none;
+            outline: none;
+        }
+        input:focus { border-color: var(--accent-color); }
+
+        button#mainBtn { 
+            width: 100%; 
+            padding: 16px; 
+            background: linear-gradient(135deg, var(--accent-color) 0%, #333 150%); 
+            color: #121212; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 17px; 
+            font-weight: bold; 
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         #result { margin-top: 35px; display: none; }
         .bazi-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #444; text-align: center; }
         .bazi-table td { padding: 10px; border: 1px solid #333; }
         .data-cell { font-size: 20px; font-weight: bold; }
 
-        /* 五行色彩類 */
         .color-金 { color: #ffd700 !important; } .color-木 { color: #4caf50 !important; }
         .color-水 { color: #2196f3 !important; } .color-火 { color: #ff5252 !important; }
         .color-土 { color: #ff9800 !important; }
         
-        /* 進度條 */
         .stat-row { margin-bottom: 12px; }
         .stat-label { display: flex; justify-content: space-between; font-size: 12px; }
         .progress-bar-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
@@ -34,10 +76,9 @@
         .bg-金 { background: #ffd700; } .bg-木 { background: #4caf50; } .bg-水 { background: #2196f3; } .bg-火 { background: #ff5252; } .bg-土 { background: #ff9800; }
 
         .fortune-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-        .tab-btn { padding: 10px; background: #2a2a2a; border: 1px solid #444; color: #888; border-radius: 8px; cursor: pointer; font-size: 12px; }
+        .tab-btn { padding: 10px; background: #2a2a2a; border: 1px solid #444; color: #888; border-radius: 8px; cursor: pointer; font-size: 12px; -webkit-tap-highlight-color: transparent; }
         .tab-btn.active { background: var(--accent-color); color: #121212; font-weight: bold; }
 
-        /* 推薦與分析顯示 */
         .recommend-area { margin-bottom: 20px; display: none; }
         .search-btn { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: #fff; color: #121212; text-decoration: none; border-radius: 12px; font-weight: bold; margin-top: 10px; border-left: 5px solid var(--accent-color); }
         .fortune-content { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 20px; font-size: 15px; color: #ddd; border: 1px solid #444; }
@@ -82,38 +123,65 @@ const SHOPLINE_SEARCH_BASE = "https://www.changsangstore.com.hk/zh-hant/search?q
 const elementColors = {"金":"#ffd700","木":"#4caf50","水":"#2196f3","火":"#ff5252","土":"#ff9800"};
 
 function calculateBazi() {
-    const dateStr = document.getElementById('birthDate').value;
-    if(!dateStr) return alert("請選擇日期");
-    const dateArr = dateStr.split('-'); const timeArr = document.getElementById('birthTime').value.split(':');
-    const solar = Solar.fromYmdHms(parseInt(dateArr[0]), parseInt(dateArr[1]), parseInt(dateArr[2]), parseInt(timeArr[0]), parseInt(timeArr[1]), 0);
-    const eightChars = solar.getLunar().getEightChar();
-    const gz = [[eightChars.getYearGan(), eightChars.getYearZhi()],[eightChars.getMonthGan(), eightChars.getMonthZhi()],[eightChars.getDayGan(), eightChars.getDayZhi()],[eightChars.getTimeGan(), eightChars.getTimeZhi()]];
-    currentBaziData = `年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}`;
+    // 增加加載狀態反饋
+    const btn = document.getElementById('mainBtn');
+    btn.innerText = "計算中...";
 
-    const elementMap = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水","子":"水","亥":"水","寅":"木","卯":"木","巳":"火","午":"火","申":"金","酉":"金","辰":"土","戌":"土","丑":"土","未":"土"};
-    let stats = {"金":0, "木":0, "水":0, "火":0, "土":0};
-    gz.forEach(p => { stats[elementMap[p[0]]]++; stats[elementMap[p[1]]]++; });
+    try {
+        const dateStr = document.getElementById('birthDate').value;
+        if(!dateStr) {
+            alert("請選擇日期");
+            btn.innerText = "掃描能量場";
+            return;
+        }
+        
+        const dateArr = dateStr.split('-'); 
+        const timeArr = document.getElementById('birthTime').value.split(':');
+        
+        // 確保 Lunar 庫可用
+        const solar = Solar.fromYmdHms(parseInt(dateArr[0]), parseInt(dateArr[1]), parseInt(dateArr[2]), parseInt(timeArr[0]), parseInt(timeArr[1]), 0);
+        const eightChars = solar.getLunar().getEightChar();
+        const gz = [[eightChars.getYearGan(), eightChars.getYearZhi()],[eightChars.getMonthGan(), eightChars.getMonthZhi()],[eightChars.getDayGan(), eightChars.getDayZhi()],[eightChars.getTimeGan(), eightChars.getTimeZhi()]];
+        
+        currentBaziData = `年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}`;
 
-    currentMinEl = "金"; let minVal = 9;
-    for(let key in stats) { if(stats[key] < minVal) { minVal = stats[key]; currentMinEl = key; } }
+        const elementMap = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水","子":"水","亥":"水","寅":"木","卯":"木","巳":"火","午":"火","申":"金","酉":"金","辰":"土","戌":"土","丑":"土","未":"土"};
+        let stats = {"金":0, "木":0, "水":0, "火":0, "土":0};
+        gz.forEach(p => { stats[elementMap[p[0]]]++; stats[elementMap[p[1]]]++; });
 
-    // 更新 UI 顏色
-    const themeColor = elementColors[currentMinEl];
-    document.documentElement.style.setProperty('--accent-color', themeColor);
-    document.getElementById('storeTitle').className = `color-${currentMinEl}`;
+        currentMinEl = "金"; let minVal = 9;
+        for(let key in stats) { if(stats[key] < minVal) { minVal = stats[key]; currentMinEl = key; } }
 
-    document.getElementById('rowTianGan').innerHTML = `<td>天干</td>` + gz.map(item => `<td class="data-cell color-${elementMap[item[0]]}">${item[0]}</td>`).join('');
-    document.getElementById('rowDiZhi').innerHTML = `<td>地支</td>` + gz.map(item => `<td class="data-cell color-${elementMap[item[1]]}">${item[1]}</td>`).join('');
+        const themeColor = elementColors[currentMinEl];
+        document.documentElement.style.setProperty('--accent-color', themeColor);
+        document.getElementById('storeTitle').className = `color-${currentMinEl}`;
 
-    const statsCon = document.getElementById('statsContainer');
-    statsCon.innerHTML = '';
-    ["金", "木", "水", "火", "土"].forEach(el => {
-        const per = (stats[el] / 8 * 100).toFixed(0);
-        statsCon.innerHTML += `<div class="stat-row"><div class="stat-label"><span>${el}</span><span>${per}%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill bg-${el}" style="width:${per}%"></div></div></div>`;
-    });
-    document.getElementById('result').style.display = 'block';
+        document.getElementById('rowTianGan').innerHTML = `<td>天干</td>` + gz.map(item => `<td class="data-cell color-${elementMap[item[0]]}">${item[0]}</td>`).join('');
+        document.getElementById('rowDiZhi').innerHTML = `<td>地支</td>` + gz.map(item => `<td class="data-cell color-${elementMap[item[1]]}">${item[1]}</td>`).join('');
+
+        const statsCon = document.getElementById('statsContainer');
+        statsCon.innerHTML = '';
+        ["金", "木", "水", "火", "土"].forEach(el => {
+            const per = (stats[el] / 8 * 100).toFixed(0);
+            statsCon.innerHTML += `<div class="stat-row"><div class="stat-label"><span>${el}</span><span>${per}%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill bg-${el}" style="width:${per}%"></div></div></div>`;
+        });
+        
+        document.getElementById('result').style.display = 'block';
+        btn.innerText = "掃描成功";
+        
+        // 平滑滾動到結果
+        setTimeout(() => {
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+
+    } catch (e) {
+        console.error(e);
+        alert("計算發生錯誤，請刷新頁面重試。");
+        btn.innerText = "掃描能量場";
+    }
 }
 
+// 嚴格保留你要求的 askAI 邏輯與 System Prompt
 async function askAI(category, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -145,7 +213,6 @@ async function askAI(category, btn) {
         const data = await response.json();
         const fullContent = data.choices[0].message.content;
         
-        // 提取推薦並顯示
         const recMatch = fullContent.match(/\[REC\]:(.+)/);
         if(recMatch) {
             const list = recMatch[1].split(',');
@@ -158,11 +225,16 @@ async function askAI(category, btn) {
         }
 
         display.innerHTML = fullContent.replace(/\[REC\]:.+/, "").replace(/\*\*(.*?)\*\*/g, `<b class="color-${currentMinEl}">$1</b>`).replace(/\n/g, "<br>");
-        window.scrollTo({ top: recArea.offsetTop - 50, behavior: 'smooth' });
-    } catch (e) { display.innerHTML = "系統繁忙，請稍後。"; }
+        
+        // 自動滾動到分析內容
+        setTimeout(() => {
+            display.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+
+    } catch (e) { 
+        display.innerHTML = "系統繁忙，請稍後重試。"; 
+    }
 }
 </script>
 </body>
 </html>
-
-
