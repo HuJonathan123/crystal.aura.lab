@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA_LAB | AI 智能水晶配對</title>
+    <title>AURA_LAB | AI 能量月份指南</title>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
-        body { font-family: 'PingFang HK', sans-serif; background: #121212; color: #e0e0e0; margin: 0; padding: 20px; line-height: 1.6; }
+        body { font-family: 'PingFang HK', sans-serif; background: #121212; color: #e0e0e0; margin: 0; padding: 20px; line-height: 1.8; }
         .container { max-width: 480px; margin: 0 auto; background: #1e1e1e; padding: 30px 20px; border-radius: 24px; border: 1px solid #333; }
         h2 { text-align: center; color: #d4af37; letter-spacing: 4px; }
         .subtitle { text-align: center; font-size: 11px; color: #777; margin-bottom: 30px; }
@@ -18,37 +18,34 @@
 
         #result { margin-top: 35px; display: none; }
         
-        /* 八字表格 */
         .bazi-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #444; text-align: center; }
         .bazi-table td { padding: 10px; border: 1px solid #333; }
         .data-cell { font-size: 20px; font-weight: bold; }
 
-        /* 進度條 */
         .stat-row { margin-bottom: 12px; }
         .stat-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
         .progress-bar-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
         .progress-bar-fill { height: 100%; width: 0%; transition: width 1s; }
         .bg-金 { background: #ffd700; } .bg-木 { background: #4caf50; } .bg-水 { background: #2196f3; } .bg-火 { background: #ff5252; } .bg-土 { background: #ff9800; }
 
-        /* AI 運勢區 */
         .fortune-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
         .tab-btn { padding: 10px; background: #2a2a2a; border: 1px solid #444; color: #888; border-radius: 8px; cursor: pointer; font-size: 12px; }
         .tab-btn.active { background: #d4af37; color: #121212; font-weight: bold; }
-        .fortune-content { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 18px; font-size: 14px; color: #ccc; border: 1px dashed #444; min-height: 120px; }
+        
+        /* 強化 AI 文字顯示 */
+        .fortune-content { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 20px; font-size: 15px; color: #ddd; border: 1px solid #444; min-height: 150px; }
+        .fortune-content b, .fortune-content strong { color: #d4af37; font-weight: bold; }
 
-        /* 動態產品推薦區 */
         .recommend-title { margin-top: 30px; font-size: 14px; color: #d4af37; border-bottom: 1px solid #d4af37; display: inline-block; padding-bottom: 5px; }
         .search-links-container { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .search-btn { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: #fff; color: #121212; text-decoration: none; border-radius: 12px; font-weight: bold; transition: 0.3s; }
-        .search-btn:hover { background: #d4af37; }
-        .search-btn span { font-size: 12px; color: #666; font-weight: normal; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>AURA_LAB</h2>
-    <div class="subtitle">AI ENERGY ANALYSIS & SEARCH</div>
+    <div class="subtitle">AI SEASONAL ENERGY GUIDE</div>
     
     <div class="form-group">
         <label>姓名 / NAME</label>
@@ -65,10 +62,7 @@
     <button id="mainBtn" onclick="calculateBazi()">開啟能量掃描</button>
 
     <div id="result">
-        <table class="bazi-table">
-            <tr id="rowTianGan"></tr>
-            <tr id="rowDiZhi"></tr>
-        </table>
+        <table class="bazi-table"><tr id="rowTianGan"></tr><tr id="rowDiZhi"></tr></table>
         <div class="stats-container" id="statsContainer"></div>
 
         <div class="fortune-section">
@@ -80,11 +74,11 @@
                 <button class="tab-btn" onclick="askAI('情緒', this)">🧘 情緒</button>
                 <button class="tab-btn" onclick="askAI('健康', this)">🏥 健康</button>
             </div>
-            <div class="fortune-content" id="fortuneText">請選擇分類...</div>
+            <div class="fortune-content" id="fortuneText">請選擇感興趣的領域...</div>
         </div>
 
         <div id="recommendArea" style="display:none;">
-            <div class="recommend-title">能量平衡配對建議</div>
+            <div class="recommend-title">命定能量物建議</div>
             <div class="search-links-container" id="searchLinks"></div>
         </div>
     </div>
@@ -101,7 +95,7 @@ const elementMap = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土",
 function calculateBazi() {
     const dateStr = document.getElementById('birthDate').value;
     const timeStr = document.getElementById('birthTime').value;
-    if(!dateStr) return alert("請輸入日期");
+    if(!dateStr) return alert("請選擇日期");
     const dateArr = dateStr.split('-'); const timeArr = timeStr.split(':');
     const solar = Solar.fromYmdHms(parseInt(dateArr[0]), parseInt(dateArr[1]), parseInt(dateArr[2]), parseInt(timeArr[0]), parseInt(timeArr[1]), 0);
     const eightChars = solar.getLunar().getEightChar();
@@ -130,7 +124,7 @@ async function askAI(category, btn) {
     btn.classList.add('active');
     const display = document.getElementById('fortuneText');
     const recommendArea = document.getElementById('recommendArea');
-    display.innerHTML = "正在調用 DeepSeek AI 進行深度計算...";
+    display.innerHTML = "🔮 <b>正在連接星盤數據並進行 AI 深度解讀...</b>";
     recommendArea.style.display = 'none';
 
     try {
@@ -140,8 +134,8 @@ async function askAI(category, btn) {
             body: JSON.stringify({
                 model: "deepseek-chat",
                 messages: [
-                    { role: "system", content: "你是一位五行能量分析師。請分析運勢。最後請客觀推薦三款最適合的水晶種類。回覆最後一行必須嚴格遵守格式：[REC]:水晶1,水晶2,水晶3" },
-                    { role: "user", content: `用戶：${document.getElementById('userName').value || '有緣人'}。八字：${currentBaziData}。缺：${currentMinEl}。分析【${category}】運勢。` }
+                    { role: "system", content: "你是一位資深五行能量分析師。回覆要求：1. 使用繁體中文。2. 內容要包含【整體分析】與【2026年度月份重點指南】。3. 針對不同季度（如春夏秋冬）推薦適合佩戴的水晶以平衡特定月份的能量。4. 使用 Markdown 格式加粗重點，多用表情符號。5. 語氣客觀，最後客觀推薦三款水晶並遵守格式：[REC]:水晶1,水晶2,水晶3" },
+                    { role: "user", content: `姓名：${document.getElementById('userName').value}。八字：${currentBaziData}。五行缺：${currentMinEl}。分析【${category}】運勢及月份水晶建議。` }
                 ]
             })
         });
@@ -151,18 +145,24 @@ async function askAI(category, btn) {
         const recMatch = fullContent.match(/\[REC\]:(.+)/);
         const crystalList = recMatch ? recMatch[1].split(',') : [];
         
-        display.innerHTML = fullContent.replace(/\[REC\]:.+/, "").replace(/\n/g, '<br>');
+        // 渲染 Markdown (簡單替換)
+        let formatted = fullContent.replace(/\[REC\]:.+/, "")
+            .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+            .replace(/\n/g, "<br>");
+        
+        display.innerHTML = formatted;
         
         if(crystalList.length > 0) {
             const linkBox = document.getElementById('searchLinks');
             linkBox.innerHTML = '';
             crystalList.forEach(name => {
                 const searchUrl = SHOPLINE_SEARCH_BASE + encodeURIComponent(name.trim());
-                linkBox.innerHTML += `<a href="${searchUrl}" target="_blank" class="search-btn">🔍 搜尋【${name.trim()}】<span>進入 Shopline 店舖</span></a>`;
+                linkBox.innerHTML += `<a href="${searchUrl}" target="_blank" class="search-btn">✨ 獲取【${name.trim()}】<span>進入店舖</span></a>`;
             });
             recommendArea.style.display = 'block';
         }
-    } catch (error) { display.innerHTML = "AI 連接失敗，請檢查網路。"; }
+        window.scrollTo({ top: display.offsetTop - 50, behavior: 'smooth' });
+    } catch (error) { display.innerHTML = "AI 連接失敗。"; }
 }
 </script>
 </body>
