@@ -207,10 +207,11 @@ async function askAI(category, btn) {
                 messages: [
                     { role: "system", content: `你是一位資深五行能量分析師。
                         穩定要求（使用繁體中文）：
-                        1. 必須首先一上來根據今年的五行運勢客觀推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。
+                        1. 首先一上來根據今年的五行運勢客觀推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。
                         2. 隨後進行深度分析，內容必須統一使用「公曆月份」。分析內容應包含2026年全年的走勢。
                         3. 加粗重點，使用表情符號，語氣平和客觀。
-                        4. 結尾請說明水晶為能量平衡工具。` },
+                        4. 結尾請說明水晶為能量平衡工具。
+                        5. 不要提到是DeepSeek或者是AI生成` },
                     { role: "user", content: `姓名：${document.getElementById('userName').value}。八字、性別與時辰狀態：${currentBaziData}。缺失：${currentMinEl}。分析【${category}】。` }
                 ]
             })
@@ -240,3 +241,4 @@ async function askAI(category, btn) {
 </script>
 </body>
 </html>
+
