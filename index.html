@@ -10,11 +10,10 @@
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "PingFang HK", sans-serif; 
             background: #121212; color: var(--text-main); margin: 0; padding: 15px; line-height: 1.8; touch-action: manipulation;
-            /* 需求 3: 增加左右間距以放置背景圖 */
             display: flex; justify-content: center;
         }
 
-        /* 需求 3: 網頁左右增加水晶產品裝飾圖 */
+        /* 網頁左右水晶產品裝飾圖 */
         .side-decor {
             position: fixed; top: 50px; width: 150px; opacity: 0.4; z-index: -1;
             display: flex; flex-direction: column; gap: 20px;
@@ -62,35 +61,36 @@
         .tab-btn { padding: 10px; background: #2a2a2a; border: 1px solid #444; color: #888; border-radius: 8px; cursor: pointer; font-size: 12px; }
         .tab-btn.active { background: var(--accent-color); color: #121212; font-weight: bold; }
 
-        /* 確認分析按鈕區域 */
         #confirmSection { display: none; margin: 15px 0; text-align: center; }
 
-        /* 修改後的 Logo 旋轉動畫樣式 */
+        /* 更新：使圖片與圓圈貼合並跟著一起旋轉 */
         .loading-spinner {
-            width: 120px; height: 120px; margin: 20px auto;
+            width: 140px; 
+            height: 140px; 
+            margin: 20px auto;
+            /* 圖片設為背景並撐滿圓形 */
             background: url('logo.png') no-repeat center;
-            background-size: contain;
-            position: relative; display: none;
-        }
-        /* 外圈金色旋轉光環 */
-        .loading-spinner::after {
-            content: "";
-            position: absolute;
-            top: -10px; left: -10px; right: -10px; bottom: -10px;
-            border: 2px solid transparent;
-            border-top: 2px solid var(--accent-color);
-            border-right: 2px solid var(--accent-color);
+            background-size: cover;
             border-radius: 50%;
-            animation: rotateRing 2s linear infinite;
+            /* 圓圈邊框效果 */
+            border: 3px solid var(--accent-color);
+            position: relative; 
+            display: none;
+            /* 使整個容器（含背景圖片）一起旋轉 */
+            animation: rotateFull 4s linear infinite;
         }
-        @keyframes rotateRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        @keyframes rotateFull { 
+            from { transform: rotate(0deg); } 
+            to { transform: rotate(360deg); } 
+        }
+
         .pulse-text { animation: pulse 1.5s ease-in-out infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
         .recommend-area { margin-top: 20px; display: none; }
         .search-btn { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: #fff; color: #121212; text-decoration: none; border-radius: 12px; font-weight: bold; margin-top: 10px; border-left: 5px solid var(--accent-color); }
         
-        /* 移除分析前空隙 */
         .fortune-content { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 20px; font-size: 15px; color: #ddd; border: 1px solid #444; margin-top: 0; }
         .fortune-content b { color: var(--accent-color); }
     </style>
@@ -162,7 +162,7 @@ function calculateBazi() {
         const solar = Solar.fromYmdHms(parseInt(dateStr.split('-')[0]), parseInt(dateStr.split('-')[1]), parseInt(dateStr.split('-')[2]), parseInt(document.getElementById('birthTime').value.split(':')[0]), 0, 0);
         const eightChars = solar.getLunar().getEightChar();
         const gz = [[eightChars.getYearGan(), eightChars.getYearZhi()],[eightChars.getMonthGan(), eightChars.getMonthZhi()],[eightChars.getDayGan(), eightChars.getDayZhi()],[eightChars.getTimeGan(), eightChars.getTimeZhi()]];
-        currentBaziData = `性別:${document.getElementById('userGender').value}, 年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}`;
+        currentBaziData = `性別:${document.getElementById('userGender').value}, 年柱:${gz[0].join('')}, 月柱:${gz[1].join('')}, 日柱:${gz[2].join('')}, 時柱:${gz[3].join('')}, 狀態:${document.getElementById('unknownTime').checked ? "時辰不詳" : "時間已知"}`;
         const elementMap = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水","子":"水","亥":"水","寅":"木","卯":"木","巳":"火","午":"火","申":"金","酉":"金","辰":"土","戌":"土","丑":"土","未":"土"};
         let stats = {"金":0, "木":0, "水":0, "火":0, "土":0};
         gz.forEach(p => { stats[elementMap[p[0]]]++; stats[elementMap[p[1]]]++; });
