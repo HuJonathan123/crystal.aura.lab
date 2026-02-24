@@ -9,16 +9,15 @@
         :root { --accent-color: #d4af37; --text-main: #e0e0e0; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "PingFang HK", sans-serif; 
-            background: #121212; color: var(--text-main); margin: 0; padding: 0; line-height: 1.8; touch-action: manipulation;
+            background: #121212; color: var(--text-main); margin: 0; padding: 15px; line-height: 1.8; touch-action: manipulation;
+            display: flex; justify-content: center;
         }
 
-        /* 響應式容器：電腦端橫版，手機端豎版 */
         .container { 
             max-width: 1000px; width: 95%; margin: 20px auto; background: #1e1e1e; padding: 30px; border-radius: 24px; border: 1px solid #333; box-sizing: border-box; 
             transition: all 0.5s ease;
         }
 
-        /* 橫版佈局控制器 */
         .main-layout { display: flex; flex-direction: column; gap: 30px; }
         @media (min-width: 800px) {
             .main-layout { flex-direction: row; align-items: flex-start; }
@@ -64,7 +63,6 @@
 
         #confirmSection { display: none; margin: 15px 0; text-align: center; }
 
-        /* 全屏分析頁面樣式 */
         #analysisPage { display: none; max-width: 800px; margin: 40px auto; padding: 20px; }
 
         .loading-spinner {
@@ -81,6 +79,16 @@
         .fortune-content { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 25px; font-size: 16px; color: #ddd; border: 1px solid #444; }
         .fortune-content b { color: var(--accent-color); }
 
+        /* 新增：內嵌水晶卡片樣式 */
+        .inline-crystal-card {
+            display: flex; align-items: center; background: #2a2a2a; border: 1px solid var(--accent-color); border-radius: 12px; margin: 15px 0; padding: 12px; text-decoration: none; transition: transform 0.2s;
+        }
+        .inline-crystal-card:hover { transform: scale(1.02); }
+        .inline-crystal-img { width: 60px; height: 60px; border-radius: 8px; margin-right: 15px; object-fit: cover; }
+        .inline-crystal-info { flex: 1; }
+        .inline-crystal-name { color: var(--accent-color); font-weight: bold; font-size: 14px; display: block; }
+        .inline-crystal-link { color: #fff; font-size: 12px; }
+
         .recommend-area { margin-top: 30px; }
         .search-btn { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: #fff; color: #121212; text-decoration: none; border-radius: 12px; font-weight: bold; margin-top: 10px; border-left: 5px solid var(--accent-color); }
     </style>
@@ -89,7 +97,6 @@
 
 <div id="mainPage" class="container">
     <h2 id="storeTitle">AURA_LAB</h2>
-    
     <div class="main-layout">
         <div class="input-section">
             <div class="form-group"><label>姓名</label><input type="text" id="userName" placeholder="輸入姓名"></div>
@@ -146,6 +153,16 @@ let currentBaziData = ""; let currentMinEl = ""; let selectedCat = "";
 const API_KEY = "sk-7accfbb7c3e3471bb5284983b0aaf3b0";
 const SHOPLINE_SEARCH_BASE = "https://www.changsangstore.com.hk/zh-hant/search?q=";
 const elementColors = {"金":"#ffd700","木":"#4caf50","水":"#2196f3","火":"#ff5252","土":"#ff9800"};
+
+// 水晶圖片資料庫
+const crystalDB = {
+    "黑曜石": "https://example.com/obsidian.jpg",
+    "海藍寶": "https://example.com/aquamarine.jpg",
+    "月光石": "https://example.com/moonstone.jpg",
+    "金髮晶": "https://example.com/gold.jpg",
+    "鈦晶": "https://example.com/titanium.jpg",
+    "黃水晶": "https://example.com/citrine.jpg"
+};
 
 function handleUnknownTime(checkbox) {
     const timeSelect = document.getElementById('birthTime');
@@ -222,11 +239,12 @@ async function askAI() {
             })
         });
         const data = await response.json();
-        const fullContent = data.choices[0].message.content;
+        let fullContent = data.choices[0].message.content;
         
         loadingDisc.style.display = 'none';
         waitingText.style.display = 'none';
         
+        // 解析並插入推薦連結
         const recMatch = fullContent.match(/\[REC\]:(.+)/);
         if(recMatch) {
             const linkBox = document.getElementById('searchLinks'); linkBox.innerHTML = '';
@@ -235,6 +253,22 @@ async function askAI() {
             });
             recArea.style.display = 'block';
         }
+
+        // 偵測水晶名稱並嵌入卡片
+        Object.keys(crystalDB).forEach(crystalName => {
+            const regex = new RegExp(crystalName, 'g');
+            const cardHTML = `
+                <a href="${SHOPLINE_SEARCH_BASE + encodeURIComponent(crystalName)}" target="_blank" class="inline-crystal-card">
+                    <img src="${crystalDB[crystalName]}" class="inline-crystal-img">
+                    <div class="inline-crystal-info">
+                        <span class="inline-crystal-name">✨ 能量推薦：${crystalName}</span>
+                        <span class="inline-crystal-link">點擊獲取專屬水晶 ➔</span>
+                    </div>
+                </a>
+            `;
+            // 僅在第一次出現時插入，避免畫面過於混亂
+            fullContent = fullContent.replace(crystalName, crystalName + cardHTML);
+        });
         
         display.style.display = 'block';
         display.innerHTML = fullContent.replace(/\[REC\]:.+/, "").trim().replace(/\*\*(.*?)\*\*/g, `<b class="color-${currentMinEl}">$1</b>`).replace(/\n/g, "<br>");
