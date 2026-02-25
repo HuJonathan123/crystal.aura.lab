@@ -232,7 +232,7 @@ async function askAI() {
             body: JSON.stringify({
                 model: "deepseek-chat",
                 messages: [
-                    { role: "system", content: `你是一位資深五行能量分析師。穩定要求（使用繁體中文）：1. 首先一上來根據今年的五行運勢客觀推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。2. 隨後進行深度分析，內容必須統一使用「公曆月份」。分析內容應包含2026年全年的走勢，並且推薦可以帶的水晶種類。3. 加粗重點，使用表情符號，語氣平和客觀。4. 結尾請說明水晶為能量平衡工具。5. 不要提到是DeepSeek或者是AI生成` },
+                    { role: "system", content: `你是一位資深五行能量分析師。穩定要求（使用繁體中文）：1. 首先一上來根據今年的五行運勢客觀推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。2. 隨後進行深度分析，內容必須統一使用「公曆月份」。分析內容應包含2026年全年的走勢。3. 加粗重點，使用表情符號，語氣平和客觀。4. 結尾請說明水晶為能量平衡工具。5. 不要提到是DeepSeek或者是AI生成` },
                     { role: "user", content: `姓名：${document.getElementById('userName').value}。八字：${currentBaziData}。缺失：${currentMinEl}。分析【${selectedCat}】。` }
                 ]
             })
@@ -243,47 +243,55 @@ async function askAI() {
         loadingDisc.style.display = 'none';
         waitingText.style.display = 'none';
         
-        // 處理 [REC] 推薦連結
+        // 1. 先處理 [REC] 頂部連結區
         const recMatch = fullContent.match(/\[REC\]:(.+)/);
         if(recMatch) {
-            const linkBox = document.getElementById('searchLinks'); linkBox.innerHTML = '';
+            const linkBox = document.getElementById('searchLinks'); 
+            linkBox.innerHTML = '';
             recMatch[1].split(/[,，、]/).forEach(name => {
                 linkBox.innerHTML += `<a href="${SHOPLINE_SEARCH_BASE + encodeURIComponent(name.trim())}" target="_blank" class="search-btn">✨ 獲取【${name.trim()}】<span>進入店舖</span></a>`;
             });
             recArea.style.display = 'block';
+            // 移除原文中的 [REC] 行，避免重複顯示文字
+            fullContent = fullContent.replace(/\[REC\]:.+\n?/, "");
         }
 
-        // 修正：依照內容出現順序精確插入卡片
-        // 1. 找出所有存在於內容中的水晶名稱及其第一次出現的位置
-        let foundCrystals = [];
-        Object.keys(crystalDB).forEach(name => {
-            const index = fullContent.indexOf(name);
-            if (index !== -1) {
-                foundCrystals.push({ name, index });
+        // 2. 核心修正：將換行轉換為 HTML，並建立一個暫時的容器來存放內容
+        display.innerHTML = fullContent.trim().replace(/\*\*(.*?)\*\*/g, `<b class="color-${currentMinEl}">$1</b>`).replace(/\n/g, "<br>");
+        display.style.display = 'block';
+
+        // 3. 遍歷內容，精確尋找關鍵字並在其對應的 HTML 元素後插入卡片
+        Object.keys(crystalDB).forEach(crystalName => {
+            // 檢查文中是否有此水晶
+            if (fullContent.includes(crystalName)) {
+                const cardHTML = `
+                    <a href="${SHOPLINE_SEARCH_BASE + encodeURIComponent(crystalName)}" target="_blank" class="inline-crystal-card">
+                        <img src="${crystalDB[crystalName]}" class="inline-crystal-img">
+                        <div class="inline-crystal-info">
+                            <span class="inline-crystal-name">✨ 能量推薦：${crystalName}</span>
+                            <span class="inline-crystal-link">點擊獲取專屬水晶 ➔</span>
+                        </div>
+                    </a>
+                `;
+                
+                // 找到包含該水晶名稱的文字節點
+                const walker = document.createTreeWalker(display, NodeFilter.SHOW_TEXT, null, false);
+                let node;
+                while(node = walker.nextNode()) {
+                    if (node.textContent.includes(crystalName)) {
+                        const range = document.createRange();
+                        range.selectNode(node);
+                        const cardContainer = document.createElement('div');
+                        cardContainer.innerHTML = cardHTML;
+                        
+                        // 插入到該段落（或是包含該文字的最近元素）的後面
+                        node.parentNode.insertBefore(cardContainer, node.nextSibling);
+                        break; // 每個水晶只插入一次
+                    }
+                }
             }
         });
 
-        // 2. 依照在內容中出現的位置排序
-        foundCrystals.sort((a, b) => a.index - b.index);
-
-        // 3. 逐一插入卡片（確保只在名稱後方插入一次）
-        foundCrystals.forEach(item => {
-            const name = item.name;
-            const cardHTML = `
-                <a href="${SHOPLINE_SEARCH_BASE + encodeURIComponent(name)}" target="_blank" class="inline-crystal-card">
-                    <img src="${crystalDB[name]}" class="inline-crystal-img">
-                    <div class="inline-crystal-info">
-                        <span class="inline-crystal-name">✨ 能量推薦：${name}</span>
-                        <span class="inline-crystal-link">點擊獲取專屬水晶 ➔</span>
-                    </div>
-                </a>
-            `;
-            // 使用正則表達式，但只替換「第一次」出現的名稱
-            fullContent = fullContent.replace(name, `${name}${cardHTML}`);
-        });
-        
-        display.style.display = 'block';
-        display.innerHTML = fullContent.replace(/\[REC\]:.+/, "").trim().replace(/\*\*(.*?)\*\*/g, `<b class="color-${currentMinEl}">$1</b>`).replace(/\n/g, "<br>");
     } catch (e) { 
         loadingDisc.style.display = 'none';
         display.innerHTML = "系統繁忙，請稍後再試。"; 
@@ -292,3 +300,4 @@ async function askAI() {
 </script>
 </body>
 </html>
+
