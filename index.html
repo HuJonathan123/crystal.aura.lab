@@ -13,16 +13,9 @@
             display: flex; justify-content: center;
         }
 
+        /* 統一的容器樣式 */
         .container { 
-            max-width: 1000px; width: 95%; margin: 20px auto; background: #1e1e1e; padding: 30px; border-radius: 24px; border: 1px solid #333; box-sizing: border-box; 
-            transition: all 0.5s ease;
-        }
-
-        .main-layout { display: flex; flex-direction: column; gap: 30px; }
-        @media (min-width: 800px) {
-            .main-layout { flex-direction: row; align-items: flex-start; }
-            .input-section { flex: 1; position: sticky; top: 20px; }
-            .result-section { flex: 1.2; border-left: 1px solid #333; padding-left: 30px; }
+            max-width: 600px; width: 100%; margin: 20px auto; background: #1e1e1e; padding: 30px; border-radius: 24px; border: 1px solid #333; box-sizing: border-box; 
         }
 
         h2 { text-align: center; color: var(--accent-color); letter-spacing: 4px; margin-top: 0; margin-bottom: 30px; }
@@ -38,11 +31,12 @@
         .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; border-radius: 6px; border: 2px solid #444; appearance: auto; cursor: pointer; }
 
         button#mainBtn, #confirmBtn, .back-btn { 
-            width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-color) 0%, #333 150%); color: #121212; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 10px;
+            width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-color) 0%, #333 150%); color: #121212; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: transform 0.2s;
         }
-        .back-btn { background: #333; color: #ccc; margin-top: 20px; width: auto; padding: 10px 25px; }
+        button#mainBtn:active, #confirmBtn:active { transform: scale(0.98); }
+        .back-btn { background: #333; color: #ccc; margin-top: 20px; }
 
-        #resultArea { display: none; }
+        /* 八字表格與五行條 */
         .bazi-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #444; text-align: center; }
         .bazi-table td { padding: 10px; border: 1px solid #333; }
         .data-cell { font-size: 20px; font-weight: bold; }
@@ -52,19 +46,61 @@
         .color-土 { color: #ff9800 !important; }
         
         .stat-row { margin-bottom: 12px; }
-        .stat-label { display: flex; justify-content: space-between; font-size: 12px; }
-        .progress-bar-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; width: 0%; transition: width 1s; }
+        .stat-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+        .progress-bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; width: 0%; transition: width 1s ease-out; }
         .bg-金 { background: #ffd700; } .bg-木 { background: #4caf50; } .bg-水 { background: #2196f3; } .bg-火 { background: #ff5252; } .bg-土 { background: #ff9800; }
 
-        .fortune-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-        .tab-btn { padding: 10px; background: #2a2a2a; border: 1px solid #444; color: #888; border-radius: 8px; cursor: pointer; font-size: 12px; }
-        .tab-btn.active { background: var(--accent-color); color: #121212; font-weight: bold; }
+        /* 新增：超大 Sticker 分類卡片樣式 */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+        @media (max-width: 500px) {
+            .category-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .category-card {
+            background: #252525;
+            border: 2px solid #333;
+            border-radius: 16px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .category-card:hover { border-color: #555; transform: translateY(-3px); }
+        
+        /* 選中狀態：動態邊框與背景 Highlight */
+        .category-card.active {
+            border-color: var(--accent-color);
+            background: #2a2a2a; /* 稍微提亮背景 */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+        /* 選中時的右上角小勾勾或裝飾（可選） */
+        .category-card.active::after {
+            content: "✓"; position: absolute; top: 8px; right: 10px; color: var(--accent-color); font-weight: bold; font-size: 14px;
+        }
 
-        #confirmSection { display: none; margin: 15px 0; text-align: center; }
+        .category-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .category-title { font-size: 15px; font-weight: bold; color: #ddd; }
 
-        #analysisPage { display: none; max-width: 800px; margin: 40px auto; padding: 20px; }
+        #confirmSection { display: none; margin-top: 10px; }
 
+        /* 旋轉動畫與分析區 */
         .loading-spinner {
             width: 140px; height: 140px; margin: 40px auto;
             background: url('logo.png') no-repeat center;
@@ -95,43 +131,65 @@
 </head>
 <body>
 
-<div id="mainPage" class="container">
+<div id="page1" class="container">
     <h2 id="storeTitle">AURA_LAB</h2>
-    <div class="main-layout">
-        <div class="input-section">
-            <div class="form-group"><label>姓名</label><input type="text" id="userName" placeholder="輸入姓名"></div>
-            <div class="form-group"><label>性別</label><select id="userGender"><option value="男">男性</option><option value="女">女性</option></select></div>
-            <div class="form-group"><label>出生日期</label><input type="date" id="birthDate"></div>
-            <div class="form-group">
-                <label>出生時間</label>
-                <select id="birthTime">
-                    <option value="00:00">00:00 (子時)</option><option value="01:00">01:00 (丑時)</option><option value="02:00">02:00 (丑時)</option><option value="03:00">03:00 (寅時)</option><option value="04:00">04:00 (寅時)</option><option value="05:00">05:00 (卯時)</option><option value="06:00">06:00 (卯時)</option><option value="07:00">07:00 (辰時)</option><option value="08:00">08:00 (辰時)</option><option value="09:00">09:00 (巳時)</option><option value="10:00">10:00 (巳時)</option><option value="11:00">11:00 (午時)</option><option value="12:00" selected>12:00 (午時)</option><option value="13:00">13:00 (未時)</option><option value="14:00">14:00 (未時)</option><option value="15:00">15:00 (申時)</option><option value="16:00">16:00 (申時)</option><option value="17:00">17:00 (酉時)</option><option value="18:00">18:00 (酉時)</option><option value="19:00">19:00 (戌時)</option><option value="20:00">20:00 (戌時)</option><option value="21:00">21:00 (亥時)</option><option value="22:00">22:00 (亥時)</option><option value="23:00">23:00 (子時)</option>
-                </select>
-                <label class="checkbox-group"><input type="checkbox" id="unknownTime" onchange="handleUnknownTime(this)"><span>我不確定具體出生時間</span></label>
-            </div>
-            <button id="mainBtn" onclick="calculateBazi()">掃描能量場</button>
-        </div>
-
-        <div id="resultArea" class="result-section">
-            <table class="bazi-table"><tr id="rowTianGan"></tr><tr id="rowDiZhi"></tr></table>
-            <div id="statsContainer"></div>
-            <p style="font-size: 13px; color: #777; margin-bottom: 10px;">點擊下方分類，開啟 AI 深度解析：</p>
-            <div class="fortune-tabs">
-                <button class="tab-btn" onclick="prepareAI('財運', this)">💰 財運</button>
-                <button class="tab-btn" onclick="prepareAI('桃花', this)">❤️ 桃花</button>
-                <button class="tab-btn" onclick="prepareAI('事業', this)">💼 事業</button>
-                <button class="tab-btn" onclick="prepareAI('學業', this)">📚 學業</button>
-                <button class="tab-btn" onclick="prepareAI('情緒', this)">🧘 情緒</button>
-                <button class="tab-btn" onclick="prepareAI('健康', this)">🏥 健康</button>
-            </div>
-            <div id="confirmSection">
-                <button id="confirmBtn" onclick="goToAnalysis()">確認進行深度能量分析</button>
-            </div>
-        </div>
+    <div class="form-group"><label>姓名</label><input type="text" id="userName" placeholder="輸入姓名"></div>
+    <div class="form-group"><label>性別</label><select id="userGender"><option value="男">男性</option><option value="女">女性</option></select></div>
+    <div class="form-group"><label>出生日期</label><input type="date" id="birthDate"></div>
+    <div class="form-group">
+        <label>出生時間</label>
+        <select id="birthTime">
+            <option value="00:00">00:00 (子時)</option><option value="01:00">01:00 (丑時)</option><option value="02:00">02:00 (丑時)</option><option value="03:00">03:00 (寅時)</option><option value="04:00">04:00 (寅時)</option><option value="05:00">05:00 (卯時)</option><option value="06:00">06:00 (卯時)</option><option value="07:00">07:00 (辰時)</option><option value="08:00">08:00 (辰時)</option><option value="09:00">09:00 (巳時)</option><option value="10:00">10:00 (巳時)</option><option value="11:00">11:00 (午時)</option><option value="12:00" selected>12:00 (午時)</option><option value="13:00">13:00 (未時)</option><option value="14:00">14:00 (未時)</option><option value="15:00">15:00 (申時)</option><option value="16:00">16:00 (申時)</option><option value="17:00">17:00 (酉時)</option><option value="18:00">18:00 (酉時)</option><option value="19:00">19:00 (戌時)</option><option value="20:00">20:00 (戌時)</option><option value="21:00">21:00 (亥時)</option><option value="22:00">22:00 (亥時)</option><option value="23:00">23:00 (子時)</option>
+        </select>
+        <label class="checkbox-group"><input type="checkbox" id="unknownTime" onchange="handleUnknownTime(this)"><span>我不確定具體出生時間</span></label>
     </div>
+    <button id="mainBtn" onclick="calculateBazi()">掃描能量場</button>
 </div>
 
-<div id="analysisPage">
+<div id="page2" class="container" style="display: none;">
+    <h2>能量分析盤</h2>
+    <table class="bazi-table"><tr id="rowTianGan"></tr><tr id="rowDiZhi"></tr></table>
+    <div id="statsContainer"></div>
+    
+    <div style="text-align: center; margin-top: 35px; margin-bottom: 5px;">
+        <span style="font-size: 16px; font-weight: bold; color: #ddd;">解鎖專屬你的深度分析</span><br>
+        <span style="font-size: 13px; color: #888;">請選擇下方您最想探索的領域</span>
+    </div>
+
+    <div class="category-grid">
+        <div class="category-card" onclick="prepareAI('財運', this)">
+            <div class="category-icon">💰</div>
+            <div class="category-title">財運探索</div>
+        </div>
+        <div class="category-card" onclick="prepareAI('桃花', this)">
+            <div class="category-icon">❤️</div>
+            <div class="category-title">桃花人際</div>
+        </div>
+        <div class="category-card" onclick="prepareAI('事業', this)">
+            <div class="category-icon">💼</div>
+            <div class="category-title">事業發展</div>
+        </div>
+        <div class="category-card" onclick="prepareAI('學業', this)">
+            <div class="category-icon">📚</div>
+            <div class="category-title">學業智慧</div>
+        </div>
+        <div class="category-card" onclick="prepareAI('情緒', this)">
+            <div class="category-icon">🧘</div>
+            <div class="category-title">情緒內耗</div>
+        </div>
+        <div class="category-card" onclick="prepareAI('健康', this)">
+            <div class="category-icon">🏥</div>
+            <div class="category-title">身心健康</div>
+        </div>
+    </div>
+
+    <div id="confirmSection">
+        <button id="confirmBtn" onclick="goToAnalysis()">確認進行深度能量分析</button>
+    </div>
+    <button class="back-btn" onclick="goToPage1()">← 返回修改資料</button>
+</div>
+
+<div id="analysisPage" class="container" style="display: none; max-width: 800px;">
     <div id="loadingDisc" class="loading-spinner"></div>
     <div id="waitingText" class="pulse-text" style="color:var(--accent-color);">
         <b>🔮 正在連接星盤數據並進行深度解讀...</b><br>
@@ -145,7 +203,7 @@
         <div id="searchLinks"></div>
     </div>
 
-    <button class="back-btn" onclick="goBack()">← 返回修改資料</button>
+    <button class="back-btn" onclick="goToPage2()">← 返回選擇其他項目</button>
 </div>
 
 <script>
@@ -169,8 +227,30 @@ function handleUnknownTime(checkbox) {
     if (checkbox.checked) timeSelect.value = "12:00";
 }
 
+// 頁面切換控制函數
+function goToPage1() {
+    document.getElementById('page2').style.display = 'none';
+    document.getElementById('analysisPage').style.display = 'none';
+    document.getElementById('page1').style.display = 'block';
+    window.scrollTo(0, 0);
+}
+
+function goToPage2() {
+    document.getElementById('page1').style.display = 'none';
+    document.getElementById('analysisPage').style.display = 'none';
+    document.getElementById('page2').style.display = 'block';
+    window.scrollTo(0, 0);
+}
+
+function goToAnalysis() {
+    document.getElementById('page1').style.display = 'none';
+    document.getElementById('page2').style.display = 'none';
+    document.getElementById('analysisPage').style.display = 'block';
+    window.scrollTo(0, 0);
+    askAI();
+}
+
 function calculateBazi() {
-    const btn = document.getElementById('mainBtn');
     try {
         const dateStr = document.getElementById('birthDate').value;
         if(!dateStr) { alert("請選擇日期"); return; }
@@ -182,36 +262,32 @@ function calculateBazi() {
         let stats = {"金":0, "木":0, "水":0, "火":0, "土":0};
         gz.forEach(p => { stats[elementMap[p[0]]]++; stats[elementMap[p[1]]]++; });
         currentMinEl = Object.keys(stats).reduce((a, b) => stats[a] < stats[b] ? a : b);
+        
+        // 更新主題色
         document.documentElement.style.setProperty('--accent-color', elementColors[currentMinEl]);
+        
         document.getElementById('rowTianGan').innerHTML = `<td>天干</td>` + gz.map(item => `<td class="data-cell color-${elementMap[item[0]]}">${item[0]}</td>`).join('');
         document.getElementById('rowDiZhi').innerHTML = `<td>地支</td>` + gz.map(item => `<td class="data-cell color-${elementMap[item[1]]}">${item[1]}</td>`).join('');
+        
         let statsHtml = ''; ["金", "木", "水", "火", "土"].forEach(el => {
             const per = (stats[el] / 8 * 100).toFixed(0);
             statsHtml += `<div class="stat-row"><div class="stat-label"><span>${el}</span><span>${per}%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill bg-${el}" style="width:${per}%"></div></div></div>`;
         });
         document.getElementById('statsContainer').innerHTML = statsHtml;
-        document.getElementById('resultArea').style.display = 'block';
-        btn.innerText = "掃描成功";
+        
+        // 計算完畢，跳轉到第二頁
+        goToPage2();
     } catch (e) { alert("日期格式出錯"); }
 }
 
-function prepareAI(category, btn) {
+function prepareAI(category, cardElement) {
     selectedCat = category;
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    // 移除所有卡片的 active 狀態
+    document.querySelectorAll('.category-card').forEach(b => b.classList.remove('active'));
+    // 為當前點擊的卡片加上 active 狀態 (觸發 Highlight 與邊框變色)
+    cardElement.classList.add('active');
+    // 顯示確認按鈕
     document.getElementById('confirmSection').style.display = 'block';
-}
-
-function goToAnalysis() {
-    document.getElementById('mainPage').style.display = 'none';
-    document.getElementById('analysisPage').style.display = 'block';
-    window.scrollTo(0, 0);
-    askAI();
-}
-
-function goBack() {
-    document.getElementById('analysisPage').style.display = 'none';
-    document.getElementById('mainPage').style.display = 'block';
 }
 
 async function askAI() {
@@ -232,7 +308,7 @@ async function askAI() {
             body: JSON.stringify({
                 model: "deepseek-chat",
                 messages: [
-                    { role: "system", content: `你是一位資深五行能量分析師。穩定要求（使用繁體中文）：1. 首先一上來根據今年的五行運勢客觀推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。2. 隨後進行深度分析，內容必須統一使用「公曆月份」。分析內容應包含2026年全年的走勢,以及推薦可以帶的水晶。3. 加粗重點，使用表情符號，語氣平和客觀。4. 結尾請說明水晶為能量平衡工具。5. 不要提到是DeepSeek或者是AI生成` },
+                    { role: "system", content: `你是一位資深五行能量分析師。穩定要求（使用繁體中文）：1. 首先一上來根據今年的五行運勢客觀推薦三款最契合的水晶。格式嚴格為 [REC]:水晶1,水晶2,水晶3。2. 隨後進行深度分析，內容必須統一使用「公曆月份」。分析內容應包含2026年全年的走勢。3. 加粗重點，使用表情符號，語氣平和客觀。4. 結尾請說明水晶為能量平衡工具。5. 不要提到是DeepSeek或者是AI生成` },
                     { role: "user", content: `姓名：${document.getElementById('userName').value}。八字：${currentBaziData}。缺失：${currentMinEl}。分析【${selectedCat}】。` }
                 ]
             })
@@ -243,7 +319,7 @@ async function askAI() {
         loadingDisc.style.display = 'none';
         waitingText.style.display = 'none';
         
-        // 1. 先處理 [REC] 頂部連結區
+        // 處理 [REC] 頂部連結區
         const recMatch = fullContent.match(/\[REC\]:(.+)/);
         if(recMatch) {
             const linkBox = document.getElementById('searchLinks'); 
@@ -252,17 +328,15 @@ async function askAI() {
                 linkBox.innerHTML += `<a href="${SHOPLINE_SEARCH_BASE + encodeURIComponent(name.trim())}" target="_blank" class="search-btn">✨ 獲取【${name.trim()}】<span>進入店舖</span></a>`;
             });
             recArea.style.display = 'block';
-            // 移除原文中的 [REC] 行，避免重複顯示文字
             fullContent = fullContent.replace(/\[REC\]:.+\n?/, "");
         }
 
-        // 2. 核心修正：將換行轉換為 HTML，並建立一個暫時的容器來存放內容
+        // 渲染文本與粗體
         display.innerHTML = fullContent.trim().replace(/\*\*(.*?)\*\*/g, `<b class="color-${currentMinEl}">$1</b>`).replace(/\n/g, "<br>");
         display.style.display = 'block';
 
-        // 3. 遍歷內容，精確尋找關鍵字並在其對應的 HTML 元素後插入卡片
+        // 精確水晶卡片 DOM 插入邏輯 (保持不變)
         Object.keys(crystalDB).forEach(crystalName => {
-            // 檢查文中是否有此水晶
             if (fullContent.includes(crystalName)) {
                 const cardHTML = `
                     <a href="${SHOPLINE_SEARCH_BASE + encodeURIComponent(crystalName)}" target="_blank" class="inline-crystal-card">
@@ -273,8 +347,6 @@ async function askAI() {
                         </div>
                     </a>
                 `;
-                
-                // 找到包含該水晶名稱的文字節點
                 const walker = document.createTreeWalker(display, NodeFilter.SHOW_TEXT, null, false);
                 let node;
                 while(node = walker.nextNode()) {
@@ -283,10 +355,8 @@ async function askAI() {
                         range.selectNode(node);
                         const cardContainer = document.createElement('div');
                         cardContainer.innerHTML = cardHTML;
-                        
-                        // 插入到該段落（或是包含該文字的最近元素）的後面
                         node.parentNode.insertBefore(cardContainer, node.nextSibling);
-                        break; // 每個水晶只插入一次
+                        break; 
                     }
                 }
             }
@@ -300,5 +370,3 @@ async function askAI() {
 </script>
 </body>
 </html>
-
-
