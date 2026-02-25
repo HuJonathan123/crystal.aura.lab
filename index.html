@@ -79,7 +79,7 @@
         .fortune-content { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 25px; font-size: 16px; color: #ddd; border: 1px solid #444; }
         .fortune-content b { color: var(--accent-color); }
 
-        /* 新增：內嵌水晶卡片樣式 */
+        /* 內嵌水晶卡片樣式 */
         .inline-crystal-card {
             display: flex; align-items: center; background: #2a2a2a; border: 1px solid var(--accent-color); border-radius: 12px; margin: 15px 0; padding: 12px; text-decoration: none; transition: transform 0.2s;
         }
@@ -154,7 +154,6 @@ const API_KEY = "sk-7accfbb7c3e3471bb5284983b0aaf3b0";
 const SHOPLINE_SEARCH_BASE = "https://www.changsangstore.com.hk/zh-hant/search?q=";
 const elementColors = {"金":"#ffd700","木":"#4caf50","水":"#2196f3","火":"#ff5252","土":"#ff9800"};
 
-// 水晶圖片資料庫
 const crystalDB = {
     "黑曜石": "https://example.com/obsidian.jpg",
     "海藍寶": "https://example.com/aquamarine.jpg",
@@ -244,7 +243,7 @@ async function askAI() {
         loadingDisc.style.display = 'none';
         waitingText.style.display = 'none';
         
-        // 解析並插入推薦連結
+        // 處理 [REC] 推薦連結
         const recMatch = fullContent.match(/\[REC\]:(.+)/);
         if(recMatch) {
             const linkBox = document.getElementById('searchLinks'); linkBox.innerHTML = '';
@@ -254,20 +253,33 @@ async function askAI() {
             recArea.style.display = 'block';
         }
 
-        // 偵測水晶名稱並嵌入卡片
-        Object.keys(crystalDB).forEach(crystalName => {
-            const regex = new RegExp(crystalName, 'g');
+        // 修正：依照內容出現順序精確插入卡片
+        // 1. 找出所有存在於內容中的水晶名稱及其第一次出現的位置
+        let foundCrystals = [];
+        Object.keys(crystalDB).forEach(name => {
+            const index = fullContent.indexOf(name);
+            if (index !== -1) {
+                foundCrystals.push({ name, index });
+            }
+        });
+
+        // 2. 依照在內容中出現的位置排序
+        foundCrystals.sort((a, b) => a.index - b.index);
+
+        // 3. 逐一插入卡片（確保只在名稱後方插入一次）
+        foundCrystals.forEach(item => {
+            const name = item.name;
             const cardHTML = `
-                <a href="${SHOPLINE_SEARCH_BASE + encodeURIComponent(crystalName)}" target="_blank" class="inline-crystal-card">
-                    <img src="${crystalDB[crystalName]}" class="inline-crystal-img">
+                <a href="${SHOPLINE_SEARCH_BASE + encodeURIComponent(name)}" target="_blank" class="inline-crystal-card">
+                    <img src="${crystalDB[name]}" class="inline-crystal-img">
                     <div class="inline-crystal-info">
-                        <span class="inline-crystal-name">✨ 能量推薦：${crystalName}</span>
+                        <span class="inline-crystal-name">✨ 能量推薦：${name}</span>
                         <span class="inline-crystal-link">點擊獲取專屬水晶 ➔</span>
                     </div>
                 </a>
             `;
-            // 僅在第一次出現時插入，避免畫面過於混亂
-            fullContent = fullContent.replace(crystalName, crystalName + cardHTML);
+            // 使用正則表達式，但只替換「第一次」出現的名稱
+            fullContent = fullContent.replace(name, `${name}${cardHTML}`);
         });
         
         display.style.display = 'block';
